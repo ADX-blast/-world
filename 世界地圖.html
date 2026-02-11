@@ -3,47 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的互動世界地圖</title>
-    
+    <title>世界歷史地圖 - 繩紋時代探索</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
     <style>
-        /* 設定地圖容器的大小 */
-        #map {
-            height: 100vh; /* 滿版高度 */
-            width: 100%;
-            background-color: #f0f0f0;
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: "Microsoft JhengHei", sans-serif; }
+        #map { height: 100vh; width: 100%; z-index: 1; }
+
+        .controls-overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(255,255,255,0.95) 0%, transparent 100%);
+            padding: 30px 40px 40px;
+            z-index: 1000;
+            pointer-events: none;
         }
-        body {
-            margin: 0;
-            padding: 0;
+
+        .controls-content {
+            pointer-events: auto;
+            max-width: 1000px;
+            margin: 0 auto;
         }
+
+        .progress-container {
+            position: relative;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .progress-bg {
+            height: 8px; width: 100%;
+            background: rgba(0,0,0,0.15);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%; background: #e74c3c; width: 0%;
+            border-radius: 10px; transition: width 0.1s linear;
+        }
+
+        .bottom-ui { display: flex; align-items: center; gap: 25px; }
+        .play-btn {
+            background: #2c3e50; border: none; color: #fff;
+            width: 55px; height: 55px; border-radius: 50%; cursor: pointer;
+            font-size: 22px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .play-btn:hover { background: #e74c3c; transform: scale(1.1); }
+        
+        .year-label { font-size: 28px; font-weight: 900; color: #2c3e50; min-width: 280px; }
+        .precision-tag {
+            font-size: 13px; padding: 5px 15px;
+            background: #34495e; color: white; border-radius: 20px;
+        }
+
+        .source-list { margin: 8px 0 0 0; padding: 0; list-style: none; border-top: 1px dashed #ccc; padding-top: 8px; }
+        .source-item { margin-bottom: 4px; }
+        .source-link { color: #2ecc71; text-decoration: none; font-weight: bold; font-size: 13px; }
+        .source-link:hover { color: #27ae60; text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <div id="map"></div>
+<div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<div class="controls-overlay">
+    <div class="controls-content">
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bg">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+        <div class="bottom-ui">
+            <button class="play-btn" id="playBtn">▶</button>
+            <div class="year-label" id="yearLabel">西元 2026 年</div>
+            <div class="precision-tag" id="precisionTag">精度: ±10年</div>
+            <div style="font-size: 12px; color: #7f8c8d; margin-left: auto; text-align: right; line-height: 1.5;">
+                <strong>點擊進度條跳轉年份</strong><br>
+                滾輪調整年份 / Ctrl+滾輪切換精度
+            </div>
+        </div>
+    </div>
+</div>
 
-    <script>
-        // 1. 初始化地圖，設定中心點座標 [緯度, 經度] 與 縮放等級
-        const map = L.map('map').setView([20, 0], 2);
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // --- 1. 遺址數據集 ---
+    const locations = [
+        {
+            name: "入江・高砂貝塚遺址",
+            period: "繩紋時代 (中/晚期)",
+            latlng: [42.5512, 140.7675],
+            startYear: -3500,
+            endYear: -800,
+            description: "位於北海道洞爺湖畔。這是一處包含居住區與墓地的貝塚，出土了反映當時人與海洋資源緊密關係的遺物。",
+            sources: [
+                { label: "🔗日本北部的繩文遺跡群(入江貝塚)", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/irie" },
+                { label: "🔗日本北部的繩文遺跡群(高砂貝塚)", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/takasago" }
+            ]
+        },
+        {
+            name: "三內丸山遺址",
+            period: "繩紋時代 (早/中期)",
+            latlng: [40.8117, 140.6975],
+            startYear: -3900,
+            endYear: -2200,
+            description: "日本最大規模的定居村落遺跡。發現了巨大的立柱建築遺跡與大量的貿易物品，顯示當時已有發達的社會組織。",
+            sources: [
+                { label: "🔗日本北部的繩文遺跡群", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/sannai-maruyama" },
+                { label: "🔗三內丸山特別史跡官網", url: "https://sannaimaruyama.pref.aomori.jp/chinese/" }
+            ]
+        },
+        {
+            name: "大湯環狀列石",
+            period: "繩紋時代 (後期)",
+            latlng: [40.2711, 140.8064],
+            startYear: -2000,
+            endYear: -1500,
+            description: "位於秋田縣，由野中堂與萬座兩個圓環組成的巨大石陣，被認為是祭祀與觀測季節變換的聖地。",
+            sources: [
+                { label: "🔗日本北部的繩文遺跡群", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/oyu" },
+                { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/13837/" }
+            ]
+        },
+        {
+            name: "尖石石器時代遺跡",
+            period: "繩紋時代 (中期)",
+            latlng: [36.0125, 138.2386],
+            startYear: -3000,
+            endYear: -2000,
+            description: "位於長野縣茅野市。出土了兩尊日本國寶陶偶：『繩紋女神』與『假面女神』，是日本繩紋藝術的巔峰。",
+            sources: [
+                { label: "🔗尖石考古博物館", url: "https://www.city.chino.lg.jp/site/togariishi/" }
+            ]
+        }
+    ];
 
-        // 2. 加入地圖圖層 (這裡使用 OpenStreetMap)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap 貢獻者'
-        }).addTo(map);
+    // --- 2. 地圖基礎設定 ---
+    const map = L.map('map', { 
+        worldCopyJump: true, 
+        zoomControl: false 
+    }).setView([39.5, 138.5], 6); 
 
-        // 3. 加入一個標記範例 (例如：台北)
-        const marker = L.marker([25.0330, 121.5654]).addTo(map);
-        marker.bindPopup("<b>你好，台北！</b><br>這是台灣的首都。").openPopup();
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        // 4. 點擊地圖顯示座標 (方便開發)
-        map.on('click', function(e) {
-            console.log("你點擊的位置座標為: " + e.latlng.toString());
+    const cavemanIcon = L.icon({
+        iconUrl: 'Gemini_Generated_Image_jzkiiqjzkiiqjzki.png', 
+        iconSize: [50, 50],
+        iconAnchor: [25, 50],
+        popupAnchor: [0, -45]
+    });
+
+    // 輔助函式：將年份數字轉為中文格式
+    function formatYearText(year) {
+        const y = Math.floor(year);
+        if (y < 0) return `西元前 ${Math.abs(y).toLocaleString()}`;
+        if (y === 0) return `西元 1`;
+        return `西元 ${y.toLocaleString()}`;
+    }
+
+    // 初始化所有標記
+    locations.forEach(loc => {
+        const linksHTML = (loc.sources || []).map(s => 
+            `<li class="source-item"><a href="${s.url}" target="_blank" class="source-link">${s.label}</a></li>`
+        ).join('');
+
+        const popupHTML = `
+            <div style="width:250px;">
+                <strong style="font-size:18px; color:#c0392b;">${loc.name}</strong><br>
+                <div style="margin:5px 0; font-weight:bold; color:#d35400;">${loc.period}</div>
+                <div style="font-size:13px; margin-bottom:5px;">
+                    <b>活躍時期：</b>${formatYearText(loc.startYear)} - ${formatYearText(loc.endYear)}
+                </div>
+                <p style="font-size:12px; color:#444; background:#f4f4f4; padding:8px; border-radius:4px;">${loc.description}</p>
+                <ul class="source-list">${linksHTML}</ul>
+            </div>`;
+        
+        loc.marker = L.marker(loc.latlng, {icon: cavemanIcon}).bindPopup(popupHTML);
+    });
+
+    // --- 3. 時間軸核心邏輯 ---
+    const START = -16000;
+    const END = 2026;
+    let currentYear = 2026;
+    let isPlaying = false;
+    let playTimer = null;
+    let zoomSteps = [1, 10, 50, 100, 500];
+    let stepIndex = 1;
+
+    const progressBar = document.getElementById('progressBar');
+    const yearLabel = document.getElementById('yearLabel');
+    const playBtn = document.getElementById('playBtn');
+
+    function syncUI(y) {
+        currentYear = Math.max(START, Math.min(END, y));
+        
+        const percent = ((currentYear - START) / (END - START)) * 100;
+        progressBar.style.width = percent + "%";
+        
+        yearLabel.innerText = formatYearText(currentYear) + " 年";
+
+        locations.forEach(loc => {
+            if (currentYear >= loc.startYear && currentYear <= loc.endYear) {
+                if (!map.hasLayer(loc.marker)) loc.marker.addTo(map);
+            } else {
+                if (map.hasLayer(loc.marker)) map.removeLayer(loc.marker);
+            }
         });
-    </script>
+    }
+
+    // 點擊進度條跳轉
+    document.getElementById('progressContainer').addEventListener('click', (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const pct = (e.clientX - rect.left) / rect.width;
+        syncUI(START + (END - START) * pct);
+    });
+
+    // 播放功能
+    function startAutoPlay() {
+        if (isPlaying) {
+            clearInterval(playTimer);
+            playBtn.innerText = "▶";
+        } else {
+            if (currentYear >= END) syncUI(START);
+            playTimer = setInterval(() => {
+                if (currentYear < END) {
+                    syncUI(currentYear + zoomSteps[stepIndex]);
+                } else {
+                    clearInterval(playTimer);
+                    playBtn.innerText = "▶";
+                    isPlaying = false;
+                }
+            }, 60);
+            playBtn.innerText = "Ⅱ";
+        }
+        isPlaying = !isPlaying;
+    }
+
+    playBtn.addEventListener('click', startAutoPlay);
+
+    // 滾輪控制
+    window.addEventListener('wheel', (e) => {
+        if (e.ctrlKey) {
+            e.preventDefault();
+            stepIndex = (e.deltaY > 0) ? (stepIndex + 1) % zoomSteps.length : (stepIndex - 1 + zoomSteps.length) % zoomSteps.length;
+            document.getElementById('precisionTag').innerText = `精度: ±${zoomSteps[stepIndex]}年`;
+        } else {
+            syncUI(currentYear + (e.deltaY > 0 ? -zoomSteps[stepIndex] : zoomSteps[stepIndex]));
+        }
+    }, { passive: false });
+
+    // 初始啟動
+    syncUI(currentYear);
+</script>
 </body>
 </html>
