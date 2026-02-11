@@ -3,65 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>世界歷史地圖 - 繩紋時代探索</title>
+    <title>歷史地圖 - 介面控制版</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: "Microsoft JhengHei", sans-serif; }
         #map { height: 100vh; width: 100%; z-index: 1; }
 
         .controls-overlay {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
+            position: absolute; bottom: 0; left: 0; right: 0;
             background: linear-gradient(to top, rgba(255,255,255,0.95) 0%, transparent 100%);
-            padding: 30px 40px 40px;
-            z-index: 1000;
-            pointer-events: none;
+            padding: 20px 40px 40px; z-index: 1000; pointer-events: none;
         }
-
-        .controls-content {
-            pointer-events: auto;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .controls-content { pointer-events: auto; max-width: 1200px; margin: 0 auto; }
 
         .progress-container {
-            position: relative;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            margin-bottom: 20px;
+            position: relative; height: 24px; display: flex;
+            align-items: center; cursor: pointer; margin-bottom: 20px;
         }
-        .progress-bg {
-            height: 8px; width: 100%;
-            background: rgba(0,0,0,0.15);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 100%; background: #e74c3c; width: 0%;
-            border-radius: 10px; transition: width 0.1s linear;
-        }
+        .progress-bg { height: 10px; width: 100%; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; background: #e74c3c; width: 0%; border-radius: 10px; transition: width 0.2s ease-out; }
 
-        .bottom-ui { display: flex; align-items: center; gap: 25px; }
+        .bottom-ui { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        
         .play-btn {
             background: #2c3e50; border: none; color: #fff;
             width: 55px; height: 55px; border-radius: 50%; cursor: pointer;
             font-size: 22px; display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s ease;
+            transition: background 0.2s;
         }
-        .play-btn:hover { background: #e74c3c; transform: scale(1.1); }
-        
-        .year-label { font-size: 28px; font-weight: 900; color: #2c3e50; min-width: 280px; }
-        .precision-tag {
-            font-size: 13px; padding: 5px 15px;
-            background: #34495e; color: white; border-radius: 20px;
-        }
+        .play-btn:hover { background: #e74c3c; }
 
-        .source-list { margin: 8px 0 0 0; padding: 0; list-style: none; border-top: 1px dashed #ccc; padding-top: 8px; }
-        .source-item { margin-bottom: 4px; }
-        .source-link { color: #2ecc71; text-decoration: none; font-weight: bold; font-size: 13px; }
-        .source-link:hover { color: #27ae60; text-decoration: underline; }
+        .year-info { display: flex; flex-direction: column; min-width: 220px; }
+        .year-label { font-size: 26px; font-weight: 900; color: #2c3e50; line-height: 1; }
+        
+        .control-group {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.9); padding: 8px 15px;
+            border-radius: 8px; border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .year-input { width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+        
+        .speed-ctrl { display: flex; align-items: center; gap: 5px; }
+        .speed-display {
+            background: #f8f9fa; border: 1px solid #ccc; color: #2c3e50; 
+            padding: 6px 0; border-radius: 4px; font-weight: bold; font-size: 14px;
+            width: 70px; text-align: center;
+        }
+        
+        .ui-btn {
+            background: #34495e; color: white; border: none; 
+            padding: 6px 12px; border-radius: 4px; cursor: pointer; 
+            font-size: 14px; font-weight: bold; transition: background 0.2s;
+        }
+        .ui-btn:hover { background: #e74c3c; }
     </style>
 </head>
 <body>
@@ -71,17 +67,34 @@
 <div class="controls-overlay">
     <div class="controls-content">
         <div class="progress-container" id="progressContainer">
-            <div class="progress-bg">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
+            <div class="progress-bg"><div class="progress-bar" id="progressBar"></div></div>
         </div>
+
         <div class="bottom-ui">
             <button class="play-btn" id="playBtn">▶</button>
-            <div class="year-label" id="yearLabel">西元 2026 年</div>
-            <div class="precision-tag" id="precisionTag">精度: ±10年</div>
-            <div style="font-size: 12px; color: #7f8c8d; margin-left: auto; text-align: right; line-height: 1.5;">
-                <strong>點擊進度條跳轉年份</strong><br>
-                滾輪調整年份 / Ctrl+滾輪切換精度
+            
+            <div class="year-info">
+                <div class="year-label" id="yearLabel">載入中...</div>
+                <div style="font-size: 11px; color: #7f8c8d; margin-top: 4px;">滾輪縮放地圖 / 使用按鈕控制時間</div>
+            </div>
+
+            <div class="control-group">
+                <span style="font-size: 13px; font-weight: bold; color: #34495e;">跳轉:</span>
+                <input type="number" id="manualYearInput" class="year-input" placeholder="年份">
+                <button class="ui-btn" id="jumpBtn">執行</button>
+            </div>
+
+            <div class="control-group">
+                <span style="font-size: 13px; font-weight: bold; color: #34495e;">運行速度:</span>
+                <div class="speed-ctrl">
+                    <button class="ui-btn" onclick="changeSpeed(-1)">－</button>
+                    <div class="speed-display" id="speedDisplay">10 年</div>
+                    <button class="ui-btn" onclick="changeSpeed(1)">＋</button>
+                </div>
+            </div>
+
+            <div style="font-size: 11px; color: #95a5a6; margin-left: auto; text-align: right;">
+                速度級別：1, 5, 10, 50, 100<br>點擊按鈕切換播放速度
             </div>
         </div>
     </div>
@@ -89,7 +102,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // --- 1. 遺址數據集 ---
+    // 遺跡資料
     const locations = [
         {
             name: "入江・高砂貝塚遺址",
@@ -140,8 +153,7 @@
         }
     ];
 
-    // --- 2. 地圖基礎設定 ---
-    const map = L.map('map', { 
+const map = L.map('map', { 
         worldCopyJump: true, 
         zoomControl: false 
     }).setView([39.5, 138.5], 6); 
@@ -183,27 +195,33 @@
         loc.marker = L.marker(loc.latlng, {icon: cavemanIcon}).bindPopup(popupHTML);
     });
 
-    // --- 3. 時間軸核心邏輯 ---
-    const START = -16000;
-    const END = 2026;
+    // --- 核心邏輯 ---
+    const START = -16000, END = 2026;
     let currentYear = 2026;
     let isPlaying = false;
     let playTimer = null;
-    let zoomSteps = [1, 10, 50, 100, 500];
-    let stepIndex = 1;
 
-    const progressBar = document.getElementById('progressBar');
-    const yearLabel = document.getElementById('yearLabel');
-    const playBtn = document.getElementById('playBtn');
+    const speeds = [1, 5, 10, 50, 100];
+    let speedIndex = 2; // 預設 10 年
+
+    function formatYearText(year) {
+        const y = Math.floor(year);
+        return y < 0 ? `西元前 ${Math.abs(y).toLocaleString()}` : `西元 ${y === 0 ? 1 : y.toLocaleString()}`;
+    }
+
+    function updateSpeedUI() {
+        document.getElementById('speedDisplay').innerText = speeds[speedIndex] + " 年";
+    }
+
+    window.changeSpeed = function(delta) {
+        speedIndex = Math.max(0, Math.min(speeds.length - 1, speedIndex + delta));
+        updateSpeedUI();
+    };
 
     function syncUI(y) {
         currentYear = Math.max(START, Math.min(END, y));
-        
-        const percent = ((currentYear - START) / (END - START)) * 100;
-        progressBar.style.width = percent + "%";
-        
-        yearLabel.innerText = formatYearText(currentYear) + " 年";
-
+        document.getElementById('progressBar').style.width = ((currentYear - START) / (END - START)) * 100 + "%";
+        document.getElementById('yearLabel').innerText = formatYearText(currentYear) + " 年";
         locations.forEach(loc => {
             if (currentYear >= loc.startYear && currentYear <= loc.endYear) {
                 if (!map.hasLayer(loc.marker)) loc.marker.addTo(map);
@@ -213,48 +231,40 @@
         });
     }
 
-    // 點擊進度條跳轉
+    // 已經移除鍵盤上下鍵 (keydown) 監聽器
+
     document.getElementById('progressContainer').addEventListener('click', (e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const pct = (e.clientX - rect.left) / rect.width;
         syncUI(START + (END - START) * pct);
     });
 
-    // 播放功能
-    function startAutoPlay() {
+    document.getElementById('jumpBtn').addEventListener('click', () => {
+        const year = parseInt(document.getElementById('manualYearInput').value);
+        if (!isNaN(year)) syncUI(year);
+    });
+
+    document.getElementById('playBtn').addEventListener('click', function() {
         if (isPlaying) {
             clearInterval(playTimer);
-            playBtn.innerText = "▶";
+            this.innerText = "▶";
         } else {
             if (currentYear >= END) syncUI(START);
             playTimer = setInterval(() => {
                 if (currentYear < END) {
-                    syncUI(currentYear + zoomSteps[stepIndex]);
+                    syncUI(currentYear + speeds[speedIndex]);
                 } else {
                     clearInterval(playTimer);
-                    playBtn.innerText = "▶";
+                    document.getElementById('playBtn').innerText = "▶";
                     isPlaying = false;
                 }
-            }, 60);
-            playBtn.innerText = "Ⅱ";
+            }, 50);
+            this.innerText = "Ⅱ";
         }
         isPlaying = !isPlaying;
-    }
+    });
 
-    playBtn.addEventListener('click', startAutoPlay);
-
-    // 滾輪控制
-    window.addEventListener('wheel', (e) => {
-        if (e.ctrlKey) {
-            e.preventDefault();
-            stepIndex = (e.deltaY > 0) ? (stepIndex + 1) % zoomSteps.length : (stepIndex - 1 + zoomSteps.length) % zoomSteps.length;
-            document.getElementById('precisionTag').innerText = `精度: ±${zoomSteps[stepIndex]}年`;
-        } else {
-            syncUI(currentYear + (e.deltaY > 0 ? -zoomSteps[stepIndex] : zoomSteps[stepIndex]));
-        }
-    }, { passive: false });
-
-    // 初始啟動
+    updateSpeedUI();
     syncUI(currentYear);
 </script>
 </body>
