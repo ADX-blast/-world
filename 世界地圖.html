@@ -58,6 +58,11 @@
             font-size: 14px; font-weight: bold; transition: background 0.2s;
         }
         .ui-btn:hover { background: #e74c3c; }
+
+        /* Popup 樣式優化 */
+        .source-list { margin: 8px 0 0 0; padding-left: 18px; font-size: 13px; }
+        .source-link { color: #2ecc71; text-decoration: none; font-weight: bold; }
+        .source-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -102,9 +107,19 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // 遺跡資料
+    // --- 1. 定義時代圖標映射表 ---
+    // 你可以在這裡更換你的本地圖片路徑
+    const iconConfig = {
+        "繩紋時代": "jomon.png",
+        "彌生時代": "yayoi.png",
+        "kofun": "kofun_icon.png",
+        "預設圖片": "Gemini_Generated_Image_jzkiiqjzkiiqjzki.png"
+    };
+
+    // --- 2. 遺跡資料 (新增 iconType 屬性) ---
     const locations = [
         {
+            iconType: "繩紋時代",
             name: "入江・高砂貝塚遺址",
             period: "繩紋時代 (中/晚期)",
             latlng: [42.5512, 140.7675],
@@ -117,6 +132,7 @@
             ]
         },
         {
+            iconType: "繩紋時代",
             name: "三內丸山遺址",
             period: "繩紋時代 (早/中期)",
             latlng: [40.8117, 140.6975],
@@ -129,6 +145,7 @@
             ]
         },
         {
+            iconType: "繩紋時代",
             name: "大湯環狀列石",
             period: "繩紋時代 (後期)",
             latlng: [40.2711, 140.8064],
@@ -141,6 +158,7 @@
             ]
         },
         {
+            iconType: "繩紋時代",
             name: "尖石石器時代遺跡",
             period: "繩紋時代 (中期)",
             latlng: [36.0125, 138.2386],
@@ -150,22 +168,24 @@
             sources: [
                 { label: "🔗尖石考古博物館", url: "https://www.city.chino.lg.jp/site/togariishi/" }
             ]
+        },
+        {
+            iconType: "彌生時代",
+            name: "吉野里遺址",
+            period: "彌生時代 (全期)",
+            latlng: [33.3267, 130.3842],
+            startYear: -300,
+            endYear: 300,
+            description: "位於佐賀縣，是日本規模最大的環壕集落遺址。這裡重現了彌生時代的高床式倉庫、祭壇與王墓，是研究彌生社會結構最重要的地點。",
+            sources: [
+                { label: "🔗吉野里歷史公園官網", url: "https://www.yoshinogari.jp/" },
+                { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/11584/" }
+            ]
         }
     ];
 
-const map = L.map('map', { 
-        worldCopyJump: true, 
-        zoomControl: false 
-    }).setView([39.5, 138.5], 6); 
-
+    const map = L.map('map', { worldCopyJump: true, zoomControl: false }).setView([39.5, 138.5], 6); 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    const cavemanIcon = L.icon({
-        iconUrl: 'Gemini_Generated_Image_jzkiiqjzkiiqjzki.png', 
-        iconSize: [50, 50],
-        iconAnchor: [25, 50],
-        popupAnchor: [0, -45]
-    });
 
     // 輔助函式：將年份數字轉為中文格式
     function formatYearText(year) {
@@ -175,8 +195,18 @@ const map = L.map('map', {
         return `西元 ${y.toLocaleString()}`;
     }
 
-    // 初始化所有標記
+    // --- 3. 初始化標記 (修改此處以支援多圖標) ---
     locations.forEach(loc => {
+        // 根據 iconType 從映射表中選取路徑，若無則用預設
+        const iconPath = iconConfig[loc.iconType] || iconConfig["default"];
+
+        const customIcon = L.icon({
+            iconUrl: iconPath, 
+            iconSize: [50, 50],
+            iconAnchor: [25, 50],
+            popupAnchor: [0, -45]
+        });
+
         const linksHTML = (loc.sources || []).map(s => 
             `<li class="source-item"><a href="${s.url}" target="_blank" class="source-link">${s.label}</a></li>`
         ).join('');
@@ -192,7 +222,7 @@ const map = L.map('map', {
                 <ul class="source-list">${linksHTML}</ul>
             </div>`;
         
-        loc.marker = L.marker(loc.latlng, {icon: cavemanIcon}).bindPopup(popupHTML);
+        loc.marker = L.marker(loc.latlng, {icon: customIcon}).bindPopup(popupHTML);
     });
 
     // --- 核心邏輯 ---
@@ -200,14 +230,8 @@ const map = L.map('map', {
     let currentYear = 2026;
     let isPlaying = false;
     let playTimer = null;
-
     const speeds = [1, 5, 10, 50, 100];
-    let speedIndex = 2; // 預設 10 年
-
-    function formatYearText(year) {
-        const y = Math.floor(year);
-        return y < 0 ? `西元前 ${Math.abs(y).toLocaleString()}` : `西元 ${y === 0 ? 1 : y.toLocaleString()}`;
-    }
+    let speedIndex = 2;
 
     function updateSpeedUI() {
         document.getElementById('speedDisplay').innerText = speeds[speedIndex] + " 年";
@@ -222,6 +246,7 @@ const map = L.map('map', {
         currentYear = Math.max(START, Math.min(END, y));
         document.getElementById('progressBar').style.width = ((currentYear - START) / (END - START)) * 100 + "%";
         document.getElementById('yearLabel').innerText = formatYearText(currentYear) + " 年";
+        
         locations.forEach(loc => {
             if (currentYear >= loc.startYear && currentYear <= loc.endYear) {
                 if (!map.hasLayer(loc.marker)) loc.marker.addTo(map);
@@ -230,8 +255,6 @@ const map = L.map('map', {
             }
         });
     }
-
-    // 已經移除鍵盤上下鍵 (keydown) 監聽器
 
     document.getElementById('progressContainer').addEventListener('click', (e) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -269,4 +292,3 @@ const map = L.map('map', {
 </script>
 </body>
 </html>
-
