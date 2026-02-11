@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的互動世界地圖</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        /* 設定地圖容器的大小 */
+        #map {
+            height: 100vh; /* 滿版高度 */
+            width: 100%;
+            background-color: #f0f0f0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // 1. 初始化地圖，設定中心點座標 [緯度, 經度] 與 縮放等級
+        const map = L.map('map').setView([20, 0], 2);
+
+        // 2. 加入地圖圖層 (這裡使用 OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap 貢獻者'
+        }).addTo(map);
+
+        // 3. 加入一個標記範例 (例如：台北)
+        const marker = L.marker([25.0330, 121.5654]).addTo(map);
+        marker.bindPopup("<b>你好，台北！</b><br>這是台灣的首都。").openPopup();
+
+        // 4. 點擊地圖顯示座標 (方便開發)
+        map.on('click', function(e) {
+            console.log("你點擊的位置座標為: " + e.latlng.toString());
+        });
+    </script>
+</body>
+</html>
