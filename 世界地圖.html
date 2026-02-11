@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歷史地圖-日本測試篇</title>
+    <title>歷史地圖-日本篇</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: "Microsoft JhengHei", sans-serif; }
@@ -32,6 +32,42 @@
             transition: background 0.2s;
         }
         .play-btn:hover { background: #e74c3c; }
+
+        .about-widget {
+    position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+    z-index: 1001; display: flex; flex-direction: column; align-items: flex-end;
+}
+
+.about-btn {
+    width: 50px; height: 50px; background: #2c3e50; color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 24px; font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.about-btn:hover { background: #e74c3c; transform: scale(1.1); }
+
+.about-panel {
+    width: 0; height: 0; opacity: 0; overflow: hidden;
+    background: rgba(255, 255, 255, 0.95); border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: all 0.4s ease; position: relative;
+    backdrop-filter: blur(5px); border: 1px solid #ddd;
+}
+
+/* 擴展後的狀態 */
+.about-panel.expanded {
+    width: 300px; height: auto; min-height: 400px; opacity: 1; padding: 25px;
+    margin-right: 10px;
+}
+
+.close-about { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 20px; color: #95a5a6; }
+.close-about:hover { color: #e74c3c; }
+
+.about-content h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #e74c3c; padding-bottom: 10px; }
+.era-badge { background: #e67e22; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; }
+
 
         .year-info { display: flex; flex-direction: column; min-width: 220px; }
         .year-label { font-size: 26px; font-weight: 900; color: #2c3e50; line-height: 1; }
@@ -68,6 +104,26 @@
 <body>
 
 <div id="map"></div>
+
+<div class="about-widget" id="aboutWidget">
+    <div class="about-panel" id="aboutPanel">
+        <span class="close-about" id="closeAbout">×</span>
+        <div class="about-content">
+            <h2>關於本圖</h2>
+            <p>這是一個互動式歷史地理系統。透過時間軸的滑動，您可以觀察各個地區文明與時代的發展過程。目前只製作日本地區</p>
+            <p><b>操作指南：</b></p>
+            <ul style="font-size: 13px; color: #7f8c8d;">
+                <li>拖動下方進度條切換年份</li>
+                <li>使用播放按鈕（▶）自動運行</li>
+                <li>調整速度級別（1-100年）</li>
+            </ul>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <p><b>若有錯誤或建議請聯絡我：</b></p>
+            <div><a href="mailto:rty89209@gmail.com" class="contact-link">rty89209@gmail.com</a></div>
+        </div>
+    </div>
+    <div class="about-btn" id="aboutBtn">i</div>
+</div>
 
 <div class="controls-overlay">
     <div class="controls-content">
@@ -181,6 +237,68 @@
                 { label: "🔗吉野里歷史公園官網", url: "https://www.yoshinogari.jp/" },
                 { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/11584/" }
             ]
+        },
+        {
+            iconType: "彌生時代",
+            name: "登呂遺址",
+            period: "彌生時代 (後期)",
+            latlng: [34.9564, 138.4081],
+            startYear: 100,
+            endYear: 300,
+            description: "位於靜岡縣。這裡是首次發現彌生時代完整水田結構的遺址，證明了當時發達的稻作文化與灌溉技術。",
+            sources: [
+                { label: "🔗登呂博物館", url: "https://www.yoshinogari.jp/" },
+                { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/18214/" }
+            ]
+        },
+        {
+            iconType: "彌生時代",
+            name: "板付遺址",
+            period: "彌生時代 (早期)",
+            latlng: [33.5682, 130.4539],
+            startYear: -400,
+            endYear: 100,
+            description: "位於福岡縣。日本最古老的水田稻作集落之一，證實了繩紋末期到彌生初期就已開始穩定的稻米種植。",
+            sources: [
+                { label: "🔗福岡市經濟觀光文化局", url: "https://bunkazai.city.fukuoka.lg.jp/sp/cultural_properties/detail/430" },
+                { label: "🔗Trip訂房網", url: "https://tw.trip.com/travel-guide/attraction/fukuoka/itazuke-iseki-38740036/" }
+            ]
+        },
+        {
+            iconType: "彌生時代",
+            name: "吉武高木遺址",
+            period: "彌生時代 (早/中期)",
+            latlng: [33.5379, 130.3185],
+            startYear: -200,
+            endYear: 100,
+            description: "位於福岡縣。被譽為『國王之墓』，出土了最早的銅劍、銅鏡、勾玉（三神器原型）組合。",
+            sources: [
+                { label: "🔗福岡市經濟觀光文化局", url: "https://bunkazai.city.fukuoka.lg.jp/yoshitaketakagi/" }
+            ]
+        },
+        {
+            iconType: "彌生時代",
+            name: "原之辻遺址",
+            period: "彌生時代 (早/古墳時代)",
+            latlng: [33.7583, 129.7547],
+            startYear: -200,
+            endYear: 100,
+            description: "長崎縣壹岐島。中國史書記載的『一支國』都城，是彌生時代重要的海上貿易轉運站。",
+            sources: [
+                { label: "🔗一支國博物館", url: "http://www.iki-haku.jp/" }
+            ]
+        },
+        {
+            iconType: "彌生時代",
+            name: "唐古・鍵遺址",
+            period: "彌生時代 (全期)",
+            latlng: [34.5694, 135.7993],
+            startYear: -200,
+            endYear: 100,
+            description: "位於奈良縣。近畿地區具代表性的環壕集落，出土了大量繪有建築圖案的陶器與木製品。",
+            sources: [
+                { label: "🔗唐古・鍵考古學博物館", url: "https://www.town.tawaramoto.nara.jp/karakokagi/" }
+            ]
         }
     ];
 
@@ -194,6 +312,14 @@
         if (y === 0) return `西元 1`;
         return `西元 ${y.toLocaleString()}`;
     }
+
+    const aboutBtn = document.getElementById('aboutBtn');
+    const aboutPanel = document.getElementById('aboutPanel');
+    const closeAbout = document.getElementById('closeAbout');
+    aboutBtn.onclick = () => { aboutPanel.classList.add('expanded'); aboutBtn.style.display = 'none'; };
+    closeAbout.onclick = () => { aboutPanel.classList.remove('expanded'); setTimeout(() => aboutBtn.style.display = 'flex', 400); };
+
+
 
     // --- 3. 初始化標記 (修改此處以支援多圖標) ---
     locations.forEach(loc => {
