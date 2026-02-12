@@ -169,12 +169,13 @@
         "舊石器時代": "paleolithic.png",
         "繩紋時代": "jomon.png",
         "彌生時代(日本)": "yayoi.jp.png",
-        "kofun": "kofun_icon.png",
+        "古墳時代": "kofun.jp.png",
+        "飛鳥時代": "Asuka Period.jp.png",
         "預設圖片": "Gemini_Generated_Image_jzkiiqjzkiiqjzki.png"
     };
 
     // --- 2. 遺跡資料 (新增 iconType 屬性) ---
-    const locations = [
+     const locations = [
         {
             iconType: "繩紋時代",
             name: "入江・高砂貝塚遺址",
@@ -183,10 +184,8 @@
             startYear: -3500,
             endYear: -800,
             description: "位於北海道洞爺湖畔。這是一處包含居住區與墓地的貝塚，出土了反映當時人與海洋資源緊密關係的遺物。",
-            sources: [
-                { label: "🔗日本北部的繩文遺跡群(入江貝塚)", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/irie" },
-                { label: "🔗日本北部的繩文遺跡群(高砂貝塚)", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/takasago" }
-            ]
+            sources: [{ label: "🔗日本北部的繩文遺跡群(入江貝塚)", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/irie" },
+                      { label: "🔗日本北部的繩文遺跡群(高砂貝塚)", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/takasago" }]
         },
         {
             iconType: "繩紋時代",
@@ -196,10 +195,8 @@
             startYear: -3900,
             endYear: -2200,
             description: "日本最大規模的定居村落遺跡。發現了巨大的立柱建築遺跡與大量的貿易物品，顯示當時已有發達的社會組織。",
-            sources: [
-                { label: "🔗日本北部的繩文遺跡群", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/sannai-maruyama" },
-                { label: "🔗三內丸山特別史跡官網", url: "https://sannaimaruyama.pref.aomori.jp/chinese/" }
-            ]
+            sources: [{ label: "🔗日本北部的繩文遺跡群", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/sannai-maruyama" },
+                      { label: "🔗三內丸山特別史跡官網", url: "https://sannaimaruyama.pref.aomori.jp/chinese/" }]
         },
         {
             iconType: "繩紋時代",
@@ -209,10 +206,8 @@
             startYear: -2000,
             endYear: -1500,
             description: "位於秋田縣，由野中堂與萬座兩個圓環組成的巨大石陣，被認為是祭祀與觀測季節變換的聖地。",
-            sources: [
-                { label: "🔗日本北部的繩文遺跡群", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/oyu" },
-                { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/13837/" }
-            ]
+            sources: [{ label: "🔗日本北部的繩文遺跡群", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/oyu" },
+                      { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/13837/" }]
         },
         {
             iconType: "繩紋時代",
@@ -222,9 +217,7 @@
             startYear: -3000,
             endYear: -2000,
             description: "位於長野縣茅野市。出土了兩尊日本國寶陶偶：『繩紋女神』與『假面女神』，是日本繩紋藝術的巔峰。",
-            sources: [
-                { label: "🔗尖石考古博物館", url: "https://www.city.chino.lg.jp/site/togariishi/" }
-            ]
+            sources: [{ label: "🔗尖石考古博物館", url: "https://www.city.chino.lg.jp/site/togariishi/" }]
         },
         {
             iconType: "彌生時代(日本)",
@@ -234,11 +227,9 @@
             startYear: -300,
             endYear: 300,
             description: "位於佐賀縣，是日本規模最大的環壕集落遺址。這裡重現了彌生時代的高床式倉庫、祭壇與王墓，是研究彌生社會結構最重要的地點。",
-            sources: [
-                { label: "🔗吉野里歷史公園官網", url: "https://www.yoshinogari.jp/" },
-                { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/11584/" },
-                { label: "🔗吉野里歷史公園官網小知識", url: "https://www.yoshinogari.jp/ch_h/introduction/qa/" }
-            ]
+            sources: [{ label: "🔗吉野里歷史公園官網", url: "https://www.yoshinogari.jp/" },
+                      { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/11584/" },
+                      { label: "🔗吉野里歷史公園官網小知識", url: "https://www.yoshinogari.jp/ch_h/introduction/qa/" }]
         },
         {
             iconType: "彌生時代(日本)",
@@ -248,10 +239,8 @@
             startYear: 100,
             endYear: 300,
             description: "位於靜岡縣。這裡是首次發現彌生時代完整水田結構的遺址，證明了當時發達的稻作文化與灌溉技術。",
-            sources: [
-                { label: "🔗登呂博物館", url: "https://www.yoshinogari.jp/" },
-                { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/18214/" }
-            ]
+            sources: [{ label: "🔗登呂博物館", url: "https://www.yoshinogari.jp/" },
+                      { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/18214/" }]
         },
         {
             iconType: "彌生時代(日本)",
@@ -261,10 +250,8 @@
             startYear: -400,
             endYear: 100,
             description: "位於福岡縣。日本最古老的水田稻作集落之一，證實了繩紋末期到彌生初期就已開始穩定的稻米種植。",
-            sources: [
-                { label: "🔗福岡市經濟觀光文化局", url: "https://bunkazai.city.fukuoka.lg.jp/sp/cultural_properties/detail/430" },
-                { label: "🔗Trip訂房網", url: "https://tw.trip.com/travel-guide/attraction/fukuoka/itazuke-iseki-38740036/" }
-            ]
+            sources: [{ label: "🔗福岡市經濟觀光文化局", url: "https://bunkazai.city.fukuoka.lg.jp/sp/cultural_properties/detail/430" },
+                      { label: "🔗Trip訂房網", url: "https://tw.trip.com/travel-guide/attraction/fukuoka/itazuke-iseki-38740036/" }]
         },
         {
             iconType: "彌生時代(日本)",
@@ -274,9 +261,7 @@
             startYear: -200,
             endYear: 100,
             description: "位於福岡縣。被譽為『國王之墓』，出土了最早的銅劍、銅鏡、勾玉（三神器原型）組合。",
-            sources: [
-                { label: "🔗福岡市經濟觀光文化局", url: "https://bunkazai.city.fukuoka.lg.jp/yoshitaketakagi/" }
-            ]
+            sources: [{ label: "🔗福岡市經濟觀光文化局", url: "https://bunkazai.city.fukuoka.lg.jp/yoshitaketakagi/" }]
         },
         {
             iconType: "彌生時代(日本)",
@@ -286,9 +271,7 @@
             startYear: -200,
             endYear: 100,
             description: "長崎縣壹岐島。中國史書記載的『一支國』都城，是彌生時代重要的海上貿易轉運站。",
-            sources: [
-                { label: "🔗一支國博物館", url: "http://www.iki-haku.jp/" }
-            ]
+            sources: [{ label: "🔗一支國博物館", url: "http://www.iki-haku.jp/" }]
         },
         {
             iconType: "彌生時代(日本)",
@@ -298,9 +281,7 @@
             startYear: -200,
             endYear: 100,
             description: "位於奈良縣。近畿地區具代表性的環壕集落，出土了大量繪有建築圖案的陶器與木製品。",
-            sources: [
-                { label: "🔗唐古・鍵考古學博物館", url: "https://www.town.tawaramoto.nara.jp/karakokagi/" }
-            ]
+            sources: [{ label: "🔗唐古・鍵考古學博物館", url: "https://www.town.tawaramoto.nara.jp/karakokagi/" }]
         },
         {
             iconType: "舊石器時代",
@@ -310,10 +291,8 @@
             startYear: -35000,
             endYear: -13000,
             description: "位於群馬縣。1949年由相澤忠洋發現，在關東壤土層中出土了石器，證明了日本舊石器時代的存在，徹底改變了日本史前史的研究。",
-            sources: [
-                { label: "🔗岩宿博物館", url: "https://www.city.midori.gunma.jp/iwajuku/" },
-                { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-12502001/" }
-            ]
+            sources: [{ label: "🔗岩宿博物館", url: "https://www.city.midori.gunma.jp/iwajuku/" },
+                      { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-12502001/" }]
          },
          {
             iconType: "舊石器時代",
@@ -327,16 +306,154 @@
          {
              iconType: "舊石器時代",
              name: "矢出川遺址",
-             period: "舊石器時代 (末期)",
+             period: "舊石器時代 (後期)",
              latlng: [35.9383, 138.4722], // 長野縣野邊山高原
              startYear: -16000,
              endYear: -13000,
              description: "位於長野縣。這是日本最早發現『細石器』（微小精細的石刃）的地點，象徵著舊石器時代向繩紋時代過渡的技術演進。",
-             sources: [
-                { label: "🔗文化庁", url: "https://bunka.nii.ac.jp/heritages/detail/216479" },
-                { label: "🔗日本旧石器学会", url: "https://palaeolithic.jp/sites/yadegawa/index.htm" }
-             ]
-         }
+             sources: [{ label: "🔗文化庁", url: "https://bunka.nii.ac.jp/heritages/detail/216479" },
+                       { label: "🔗日本旧石器学会", url: "https://palaeolithic.jp/sites/yadegawa/index.htm" }]
+         },
+         {
+             iconType: "古墳時代",
+             name: "仁德天皇陵 (大仙陵古墳)",
+             period: "古墳時代 (中期)",
+             latlng: [34.5644, 135.4839],
+             startYear: 400,
+             endYear: 500,
+             description: "位於大阪府堺市。日本最大的前方後圓墳，與埃及胡夫金字塔、中國秦始皇陵並稱為世界三大墳墓。",
+             sources: [{ label: "🔗堺市博物館", url: "https://www.city.sakai.lg.jp/kanko/hakubutsukan/" },
+                       { label: "🔗堺觀光會展協會", url: "https://www.sakai-tcb.or.jp/zh-tw/spot/detail/126" },
+                       { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/12281/" },
+                       { label: "🔗完美行", url: "https://tw.wamazing.com/media/article/a-3187/" }]
+
+         },
+         {
+             iconType: "古墳時代",
+             name: "箸墓古墳",
+             period: "古墳時代 (早期)",
+             latlng: [34.5395, 135.8411],
+             startYear: 250,
+             endYear: 350,
+             description: "位於奈良縣櫻井市。被認為是最早的大型前方後圓墳，傳說與卑彌呼女王有關，象徵著古墳時代的開端。",
+             sources: [{ label: "🔗JAPAN VIDEOS", url: "https://cooljapan-videos.com/tw/articles/wtrk0oxv" },
+                       { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-2400380/" }]
+         },
+         {
+             iconType: "古墳時代",
+             name: "藤之木古墳",
+             period: "古墳時代 (後期)",
+             latlng: [34.6111, 135.7289],
+             startYear: 550,
+             endYear: 600,
+             description: "位於奈良縣斑鳩町。雖然規模較小，但出土了極其奢華的馬具與金銅飾品，且未被盜掘，是研究古墳工藝的寶庫。",
+             sources: [{ label: "🔗維基百科", url: "https://zh.wikipedia.org/zh-tw/%E8%97%A4%E4%B9%8B%E6%9C%A8%E5%8F%A4%E5%A2%B3" },
+                       { label: "🔗iwafu", url: "https://www.iwafu.com/tw/events/1035399" },
+                       { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-1301162/" }]
+
+         },
+         {
+             iconType: "古墳時代",
+             name: "高松塚古墳",
+             period: "古墳時代 (後期)",
+             latlng: [34.4603, 135.8058],
+             startYear: 650,
+             endYear: 750,
+             description: "位於奈良縣明日香村。以精美的『飛鳥美人』壁畫聞名，融合了中國與朝鮮半島的文化風格，是日本繪畫史的巔峰。",
+             sources: [{ label: "🔗國營飛鳥歷史公園", url: "https://www.asuka-park.jp/tw/area/takamatsuzuka/" },
+                       { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-1301163/" }]
+         },
+         {
+            iconType: "飛鳥時代",
+            name: "飛鳥板蓋宮跡",
+            period: "飛鳥時代",
+            latlng: [34.4735, 135.8214],
+            startYear: 642,
+            endYear: 655,
+            description: "皇極天皇的宮殿。這裡是「乙巳之變」的發生地，蘇我入鹿在此被暗殺，隨後開啟了日本史上著名的「大化革新」。",
+            sources: [{ label: "🔗明日香村觀光導覽", url: "https://asukamura.com/" },
+                      { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-2400043/" },
+                      { label: "🔗易遊網", url: "https://vacation.eztravel.com.tw/sight/plc0000056665/%E9%A3%9B%E9%B3%A5%E6%9D%BF%E8%93%8B%E5%AE%AE%E8%B7%A1" }]
+        },
+        {
+            iconType: "飛鳥時代",
+            name: "飛鳥寺 (法興寺)",
+            period: "飛鳥時代",
+            latlng: [34.4789, 135.8203],
+            startYear: 596,
+            endYear: 710,
+            description: "日本最古老的正式寺院。由蘇我氏興建，供奉著著名的「飛鳥大佛」，展現了當時受到北魏風格影響的造像藝術。",
+            sources: [{ label: "🔗易遊網", url: "https://vacation.eztravel.com.tw/sight/plc0000056660/asuka-ji-%E9%A3%9B%E9%B3%A5%E5%AF%BA" },
+                      { label: "🔗金城事務所", url: "https://voniblog.com/%E9%A3%9B%E9%B3%A5%E5%AF%BA/" }]
+        },
+        {
+            iconType: "飛鳥時代",
+            name: "石舞台古墳",
+            period: "飛鳥時代",
+            latlng: [34.4667, 135.8267],
+            startYear: 600,
+            endYear: 700,
+            description: "巨大的方墳石室，重達2300噸的巨石外露。相傳是飛鳥時代權臣蘇我馬子的墓，是飛鳥地區最壯觀的巨石建築。",
+            sources: [{ label: "🔗國營飛鳥歷史公園", url: "https://www.asuka-park.jp/tw/area/ishibutai/" },
+                      { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/11635/" },
+                      { label: "🔗JNTO", url: "https://www.japan.travel/tw/spot/1021/" }]
+        },
+        {
+            iconType: "飛鳥時代",
+            name: "龜形石造物",
+            period: "飛鳥時代",
+            latlng: [34.4752, 135.8228],
+            startYear: 650,
+            endYear: 710,
+            description: "神秘的圓形池與水渠組合，其石材雕刻成烏龜形狀。推測與齊明天皇時期的祭祀儀式或宮廷供水系統有關。",
+            sources: [{ label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/guide/NTJtrv0158-zh-tw/" }]
+        },
+        {
+            iconType: "飛鳥時代",
+            name: "法隆寺",
+            period: "飛鳥時代",
+            latlng: [34.6141, 135.7356],
+            startYear: 607,
+            endYear: 710,
+            description: "由聖德太子興建，其西院伽藍是世界現存最古老的木造建築群，1993年成為日本首個世界文化遺產。",
+            sources: [{ label: "🔗法隆寺官網", url: "http://www.horyuji.or.jp/" },
+                      { label: "🔗好運日本行", url: "http://www.horyuji.or.jp/" },
+                      { label: "🔗法隆寺・中宮寺巡禮", url: "https://booking.letsgojp.com/plans/3284" }]
+        },
+        {
+            iconType: "飛鳥時代",
+            name: "中宮寺",
+            period: "飛鳥時代",
+            latlng: [34.6147, 135.7383],
+            startYear: 620,
+            endYear: 710,
+            description: "緊鄰法隆寺，由聖德太子為其母后建立的尼院。寺內供奉的「菩薩半跏像」被譽為世界三大微笑像之一。",
+            sources: [{ label: "🔗IKIDANE", url: "https://ikidane-nippon.com/zh-Hant-TW/spots/chugu-ji" },
+                      { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-14400827n/" },
+                      { label: "🔗法隆寺・中宮寺巡禮", url: "https://booking.letsgojp.com/plans/3284" }]
+        },
+        {
+            iconType: "飛鳥時代",
+            name: "難波宮跡",
+            period: "飛鳥時代 / 奈良時代",
+            latlng: [34.6806, 135.5233],
+            startYear: 645,
+            endYear: 784,
+            description: "大化革新後遷都的地點。此處發現了兩期建築遺構：前期難波宮（飛鳥時期）與後期難波宮（奈良時期）。",
+            sources: [{ label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-1903192/" },
+                      { label: "🔗大阪市建設局企劃部", url: "https://takenouchikaidou.com/zh-TW/page/naniwa-no-miya-ato-park" }]
+        },
+        {
+            iconType: "飛鳥時代",
+            name: "近江大津宮跡",
+            period: "飛鳥時代",
+            latlng: [35.0211, 135.8567],
+            startYear: 667,
+            endYear: 672,
+            description: "天智天皇遷都至滋賀大津。雖然遷都時間僅五年，但在此頒布了《近江令》，是日本律令制法律的重要基石。",
+            sources: [{ label: "🔗文化庁", url: "https://bunka.nii.ac.jp/heritages/detail/163041" },
+                      { label: "🔗iwafu", url: "https://www.iwafu.com/tw/events/1017848" }]
+        }
     ];
 
     const map = L.map('map', { worldCopyJump: true, zoomControl: false }).setView([39.5, 138.5], 6); 
@@ -389,7 +506,7 @@
     });
 
     // --- 核心邏輯 ---
-    const START = -120000, END = 2026;
+    const START = -16000, END = 2026;
     let currentYear = 2026;
     let isPlaying = false;
     let playTimer = null;
