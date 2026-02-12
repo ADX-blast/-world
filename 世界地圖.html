@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>歷史地圖-日本篇</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
+    .contact-link i:hover {
+    color: #e74c3c !important; /* 滑鼠移上去時變為紅色 */
+    transform: scale(1.1);
+    }
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: "Microsoft JhengHei", sans-serif; }
         #map { height: 100vh; width: 100%; z-index: 1; }
 
@@ -119,7 +124,11 @@
             </ul>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
             <p><b>若有錯誤或建議請聯絡我：</b></p>
-            <div><a href="mailto:rty89209@gmail.com" class="contact-link">rty89209@gmail.com</a></div>
+            <div style="margin-top: 10px;">
+            <a href="mailto:rty89209@gmail.com" class="contact-link" title="傳送郵件聯絡我">
+        <i class="fa-regular fa-envelope" style="font-size: 28px; color: #2c3e50; transition: color 0.2s;"></i>
+    </a>
+</div>
         </div>
     </div>
     <div class="about-btn" id="aboutBtn">i</div>
@@ -171,6 +180,7 @@
         "彌生時代(日本)": "yayoi.jp.png",
         "古墳時代": "kofun.jp.png",
         "飛鳥時代": "Asuka Period.jp.png",
+        "奈良時代": "Nara Period.jp.png",
         "預設圖片": "Gemini_Generated_Image_jzkiiqjzkiiqjzki.png"
     };
 
@@ -453,7 +463,105 @@
             description: "天智天皇遷都至滋賀大津。雖然遷都時間僅五年，但在此頒布了《近江令》，是日本律令制法律的重要基石。",
             sources: [{ label: "🔗文化庁", url: "https://bunka.nii.ac.jp/heritages/detail/163041" },
                       { label: "🔗iwafu", url: "https://www.iwafu.com/tw/events/1017848" }]
+        },
+        {
+            iconType: "奈良時代",
+            name: "平城宮跡 (平城京)",
+            period: "奈良時代",
+            latlng: [34.6931, 135.7944],
+            startYear: 710,
+            endYear: 784,
+            description: "日本首個模仿唐朝長安城建立的宏大首都。此遺址保留了朱雀門與第一次大極殿，象徵著天平文化的繁榮。",
+            sources: [{ label: "🔗平城宮跡歷史公園", url: "https://www.heijo-park.jp/" }]
+        },
+        {
+            iconType: "奈良時代",
+            name: "東大寺 (大和國總國分寺)",
+            period: "奈良時代",
+            latlng: [34.6889, 135.8398],
+            startYear: 728,
+            endYear: 2026,
+            description: "聖武天皇所建，供奉著著名的「奈良大佛」。身為全國國分寺之首，它是佛教守護國家的中心點。",
+            sources: [{ label: "🔗東大寺官網", url: "http://www.todaiji.or.jp/" },
+                      { label: "🔗正倉院", url: "https://shosoin.kunaicho.go.jp/" }]
+        },
+        {
+            iconType: "奈良時代",
+            name: "唐招提寺",
+            period: "奈良時代",
+            latlng: [34.6751, 135.7849],
+            startYear: 759,
+            endYear: 2026,
+            description: "由唐朝高僧鑒真和尚親自下令建造，是律宗的總本山。其金堂保留了天平時代最純粹的建築風格。",
+            sources: [{ label: "🔗唐招提寺官網", url: "https://toushoudaiji.jp/" }]
+        },
+        {
+            iconType: "奈良時代",
+            name: "藥師寺",
+            period: "飛鳥 / 奈良時代",
+            latlng: [34.6681, 135.7844],
+            startYear: 680,
+            endYear: 2026,
+            description: "由天武天皇發願興建，遷都平城京後重修。其東塔被譽為「凍結的音樂」，是極少數從奈良時代存留至今的古塔。",
+            sources: [{ label: "🔗藥師寺官網", url: "https://yakushiji.or.jp/" }]
+        },
+        {
+            iconType: "奈良時代",
+            name: "興福寺",
+            period: "奈良時代",
+            latlng: [34.6830, 135.8306],
+            startYear: 710,
+            endYear: 2026,
+            description: "藤原氏的氏寺，是法相宗的中心。寺內的阿修羅像與五重塔是奈良最具代表性的文化標誌。",
+            sources: [{ label: "🔗興福寺官網", url: "https://www.kohfukuji.com/" }]
+        },
+        {
+            iconType: "奈良時代",
+            name: "恭仁京跡 (大極殿遺址)",
+            period: "奈良時代 (短暫遷都)",
+            latlng: [34.7645, 135.8617],
+            startYear: 740,
+            endYear: 744,
+            description: "聖武天皇為了脫離佛教勢力干預而短暫遷都的地點。現存有巨大的遺址基石。",
+            sources: [{ label: "🔗木津川市觀光協會", url: "https://www.0774.or.jp/sightseeing/kunikyo/" }]
+        },
+        {
+            iconType: "奈良時代",
+            name: "紫香樂宮 (甲賀宮)",
+            period: "奈良時代 (短暫遷都)",
+            latlng: [34.9122, 136.0820],
+            startYear: 742,
+            endYear: 745,
+            description: "聖武天皇下令開始鑄造東大寺大佛的最初地點，後因火災與地震回遷平城京。",
+            sources: [{ label: "🔗滋賀縣觀光導覽", url: "https://www.biwako-visitors.jp/spot/detail/1446/" }]
+        },
+        {
+            iconType: "飛鳥時代",
+            name: "後期難波宮跡",
+            period: "飛鳥 / 奈良時代",
+            latlng: [34.6806, 135.5233],
+            startYear: 744,
+            endYear: 784,
+            description: "奈良時代的副都，曾作為聖武天皇的陪都。此處發掘出大量的瓦片與官僚辦公遺跡。",
+            sources: [{ label: "🔗大阪歷史博物館", url: "https://www.osakamushis.jp/" }]
+        },
+        {
+            iconType: "奈良時代",
+            name: "元興寺",
+            period: "奈良時代",
+            latlng: [34.6781, 135.8317],
+            startYear: 710,
+            endYear: 2026,
+            description: "從飛鳥寺遷至平城京後的名稱，是日本最古老的佛寺之一。屋頂保留了部分飛鳥時代的古老瓦片。",
+            sources: [{ label: "🔗元興寺官網", url: "https://gangoji-tera.or.jp/" }]
         }
+
+
+
+
+
+
+
     ];
 
     const map = L.map('map', { worldCopyJump: true, zoomControl: false }).setView([39.5, 138.5], 6); 
