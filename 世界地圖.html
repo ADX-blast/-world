@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歷史地圖-日本篇</title>
+    <title>歷史地圖-台灣與日本篇</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
     .contact-link i:hover {
@@ -115,11 +115,12 @@
         <span class="close-about" id="closeAbout">×</span>
         <div class="about-content">
             <h2>關於本圖</h2>
-            <p>這是一個互動式歷史地理系統。透過時間軸的滑動，您可以觀察各個地區文明與時代的發展過程。目前只製作日本地區</p>
+            <p>這是一個互動式歷史地理系統。透過時間軸的滑動，您可以觀察各個地區文明與時代的發展過程。目前只製作台灣時代與日本地區至奈良時代，未來預計新增比較知名的事件。</p>
             <p><b>操作指南：</b></p>
             <ul style="font-size: 13px; color: #7f8c8d;">
                 <li>拖動下方進度條切換年份</li>
                 <li>使用播放按鈕（▶）自動運行</li>
+                <li>使用跳轉功能快速鎖定時代</li>
                 <li>調整速度級別（1-100年）</li>
             </ul>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
@@ -151,7 +152,7 @@
             <div class="control-group">
                 <span style="font-size: 13px; font-weight: bold; color: #34495e;">跳轉:</span>
                 <input type="number" id="manualYearInput" class="year-input" placeholder="年份">
-                <button class="ui-btn" id="jumpBtn">執行</button>
+                <button class="ui-btn" id="jumpBtn">確定</button>
             </div>
 
             <div class="control-group">
@@ -801,8 +802,8 @@
             sources: [{ label: "🔗元興寺官網", url: "https://gangoji-tera.or.jp/" }]
         }
     ];
-
-    const map = L.map('map', { worldCopyJump: true, zoomControl: false }).setView([39.5, 138.5], 6); 
+    //調整地圖初始視野
+    const map = L.map('map', { worldCopyJump: true, zoomControl: false }).setView([30.0, 130.0], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     // 輔助函式：將年份數字轉為中文格式
