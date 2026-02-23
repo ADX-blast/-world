@@ -1,171 +1,140 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歷史地圖-台灣與日本篇</title>
+    <title>台灣歷史地圖 - 旗艦中文化導航</title>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="locations_data.js"></script>
+
     <style>
-    .contact-link i:hover {
-    color: #e74c3c !important; /* 滑鼠移上去時變為紅色 */
-    transform: scale(1.1);
-    }
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: "Microsoft JhengHei", sans-serif; }
+        :root { 
+            --primary: #00f2fe; 
+            --accent: #7000ff;  
+            --dark-bg: rgba(10, 15, 25, 0.92); 
+            --text-light: #e2e8f0;
+            --panel-border: rgba(0, 242, 254, 0.5);
+            --neon-shadow: 0 0 15px rgba(0, 242, 254, 0.6);
+        }
+
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: #0b0e14; }
         #map { height: 100vh; width: 100%; z-index: 1; }
 
-        .controls-overlay {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(to top, rgba(255,255,255,0.95) 0%, transparent 100%);
-            padding: 20px 40px 40px; z-index: 1000; pointer-events: none;
-        }
-        .controls-content { pointer-events: auto; max-width: 1200px; margin: 0 auto; }
-
-        .progress-container {
-            position: relative; height: 24px; display: flex;
-            align-items: center; cursor: pointer; margin-bottom: 20px;
-        }
-        .progress-bg { height: 10px; width: 100%; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; }
-        .progress-bar { height: 100%; background: #e74c3c; width: 0%; border-radius: 10px; transition: width 0.2s ease-out; }
-
-        .bottom-ui { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .leaflet-marker-icon { transition: transform 0.2s ease; border-radius: 4px; }
+        .leaflet-marker-icon:hover { transform: scale(1.15); filter: drop-shadow(0 0 8px var(--accent)) !important; }
+        .leaflet-popup-content-wrapper { background: #0f172a !important; border: 2px solid var(--primary) !important; color: #fff !important; box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
+        .leaflet-popup-tip { background: var(--primary) !important; }
+        .custom-popup-content { padding: 12px; min-width: 180px; }
         
-        .play-btn {
-            background: #2c3e50; border: none; color: #fff;
-            width: 55px; height: 55px; border-radius: 50%; cursor: pointer;
-            font-size: 22px; display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s;
+        .source-btn {
+            display: inline-block; margin-top: 10px; padding: 6px 12px;
+            background: rgba(0, 242, 254, 0.1); color: var(--primary) !important;
+            text-decoration: none; border: 1px solid var(--primary); border-radius: 5px; font-size: 12px; font-weight: bold;
         }
-        .play-btn:hover { background: #e74c3c; }
 
-        .about-widget {
-    position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
-    z-index: 1001; display: flex; flex-direction: column; align-items: flex-end;
-}
-
-.about-btn {
-    width: 50px; height: 50px; background: #2c3e50; color: white;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 24px; font-weight: bold;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.about-btn:hover { background: #e74c3c; transform: scale(1.1); }
-
-.about-panel {
-    width: 0; height: 0; opacity: 0; overflow: hidden;
-    background: rgba(255, 255, 255, 0.95); border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    transition: all 0.4s ease; position: relative;
-    backdrop-filter: blur(5px); border: 1px solid #ddd;
-}
-
-/* 擴展後的狀態 */
-.about-panel.expanded {
-    width: 300px; height: auto; min-height: 400px; opacity: 1; padding: 25px;
-    margin-right: 10px;
-}
-
-.close-about { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 20px; color: #95a5a6; }
-.close-about:hover { color: #e74c3c; }
-
-.about-content h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #e74c3c; padding-bottom: 10px; }
-.era-badge { background: #e67e22; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; }
-
-
-        .year-info { display: flex; flex-direction: column; min-width: 220px; }
-        .year-label { font-size: 26px; font-weight: 900; color: #2c3e50; line-height: 1; }
+        .side-container { position: absolute; top: 25px; right: 25px; z-index: 1001; display: flex; flex-direction: column; gap: 15px; }
+        .side-btn { width: 50px; height: 50px; background: var(--dark-bg); border: 1px solid var(--panel-border); border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--primary); transition: 0.3s; font-size: 20px; }
+        .side-btn.active { background: var(--primary); color: #000; box-shadow: 0 0 25px var(--primary); }
         
-        .control-group {
-            display: flex; align-items: center; gap: 8px;
-            background: rgba(255,255,255,0.9); padding: 8px 15px;
-            border-radius: 8px; border: 1px solid #ddd;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        .floating-panel { position: fixed; top: 25px; right: 90px; width: 320px; background: var(--dark-bg); backdrop-filter: blur(15px); border: 1px solid var(--panel-border); border-radius: 15px; color: var(--text-light); display: none; z-index: 2000; overflow: hidden; animation: panelFade 0.3s ease; }
+        @keyframes panelFade { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .panel-header { padding: 15px 20px; background: rgba(255,255,255,0.08); font-weight: bold; color: var(--primary); border-bottom: 1px solid var(--panel-border); display: flex; justify-content: space-between; }
+        .event-list { max-height: 60vh; overflow-y: auto; }
+        .event-item { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+        .event-item:hover { background: rgba(112, 0, 255, 0.2); border-left: 5px solid var(--accent); }
+
+        .controls-overlay { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 1100px; background: var(--dark-bg); backdrop-filter: blur(20px); padding: 18px 25px; border-radius: 20px; border: 1px solid var(--panel-border); z-index: 1000; }
+        
+        .prog-bg { 
+            height: 10px; width: 100%; background: rgba(255,255,255,0.1); border-radius: 5px; 
+            cursor: pointer; margin-bottom: 15px; position: relative; display: flex; align-items: center;
+        }
+        .prog-bar { 
+            height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); 
+            border-radius: 5px; width: 0%; pointer-events: none; position: relative;
+        }
+        .prog-handle { 
+            position: absolute; 
+            right: -10px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            width: 20px; height: 20px; background: #fff; border-radius: 50%; 
+            box-shadow: 0 0 15px var(--primary); border: 2px solid var(--primary); 
+            cursor: grab; pointer-events: auto; z-index: 10;
         }
         
-        .year-input { width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
-        
-        .speed-ctrl { display: flex; align-items: center; gap: 5px; }
-        .speed-display {
-            background: #f8f9fa; border: 1px solid #ccc; color: #2c3e50; 
-            padding: 6px 0; border-radius: 4px; font-weight: bold; font-size: 14px;
-            width: 70px; text-align: center;
-        }
-        
-        .ui-btn {
-            background: #34495e; color: white; border: none; 
-            padding: 6px 12px; border-radius: 4px; cursor: pointer; 
-            font-size: 14px; font-weight: bold; transition: background 0.2s;
-        }
-        .ui-btn:hover { background: #e74c3c; }
+        .bottom-ui { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .play-btn { width: 45px; height: 45px; background: transparent; border: 2px solid var(--primary); color: var(--primary); border-radius: 50%; cursor: pointer; font-size: 16px; flex-shrink: 0; }
+        .time-box { min-width: 200px; border-left: 2px solid var(--panel-border); padding-left: 15px; }
+        .main-time { font-size: 22px; font-weight: 800; color: #fff; font-family: 'Consolas', monospace; }
+        .sub-time { font-size: 13px; color: var(--primary); font-weight: bold; }
 
-        /* Popup 樣式優化 */
-        .source-list { margin: 8px 0 0 0; padding-left: 18px; font-size: 13px; }
-        .source-link { color: #2ecc71; text-decoration: none; font-weight: bold; }
-        .source-link:hover { text-decoration: underline; }
+        .input-group { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 12px; border: 1px solid var(--primary); }
+        .input-group input { 
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: #fff; text-align: center; outline: none; border-radius: 4px; 
+            -moz-appearance: textfield;
+        }
+        .input-group input::-webkit-outer-spin-button, .input-group input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input#inY { width: 80px; font-size: 16px; }
+        input#inM, input#inD { width: 30px; }
+
+        .icon-btn { background: transparent; border: none; color: var(--primary); cursor: pointer; font-size: 20px; }
+        .speed-display { font-size: 12px; color: var(--text-light); width: 85px; text-align: center; }
+
+        #alert-box { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 12px 30px; border-radius: 50px; border: 2px solid var(--primary); z-index: 9999; transition: 0.5s; font-weight: bold; }
+        #alert-box.show { top: 30px; }
     </style>
 </head>
 <body>
 
+<div id="alert-box">警告：無西元 0 年</div>
 <div id="map"></div>
 
-<div class="about-widget" id="aboutWidget">
-    <div class="about-panel" id="aboutPanel">
-        <span class="close-about" id="closeAbout">×</span>
-        <div class="about-content">
-            <h2>關於本圖</h2>
-            <p>這是一個互動式歷史地理系統。透過時間軸的滑動，您可以觀察各個地區文明與時代的發展過程。目前只製作台灣時代與日本地區至奈良時代，未來預計新增比較知名的事件。</p>
-            <p><b>操作指南：</b></p>
-            <ul style="font-size: 13px; color: #7f8c8d;">
-                <li>拖動下方進度條切換年份</li>
-                <li>使用播放按鈕（▶）自動運行</li>
-                <li>使用跳轉功能快速鎖定時代</li>
-                <li>調整速度級別（1-100年）</li>
-            </ul>
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-            <p><b>若有錯誤或建議請聯絡我：</b></p>
-            <div style="margin-top: 10px;">
-            <a href="mailto:rty89209@gmail.com" class="contact-link" title="傳送郵件聯絡我">
-        <i class="fa-regular fa-envelope" style="font-size: 28px; color: #2c3e50; transition: color 0.2s;"></i>
-    </a>
+<div class="side-container">
+    <div class="side-btn" id="navBtn" onclick="togglePanel('eventNav', 'navBtn')"><i class="fa-solid fa-database"></i></div>
+    <div class="side-btn" id="infoBtn" onclick="togglePanel('infoPanel', 'infoBtn')"><i class="fa-solid fa-microchip"></i></div>
 </div>
-        </div>
+
+<div class="floating-panel" id="eventNav">
+    <div class="panel-header"><span>核心事件日誌</span><i class="fa-solid fa-xmark" onclick="closeAllPanels()" style="cursor:pointer"></i></div>
+    <div class="event-list" id="eventList"></div>
+</div>
+
+<div class="floating-panel" id="infoPanel">
+    <div class="panel-header"><span>系統手冊</span><i class="fa-solid fa-xmark" onclick="closeAllPanels()" style="cursor:pointer"></i></div>
+    <div style="padding:20px; font-size:13px; color:#94a3b8; line-height:1.6;">
+        ● 點擊播放鈕開始/暫停時間。<br>
+        ● <b>無西元 0 年</b>：系統自動由 B.C. 1 跳轉至 A.D. 1。<br>
+        ● <b>範圍限制</b>：支援西元前 5000 年至今日。
     </div>
-    <div class="about-btn" id="aboutBtn">i</div>
 </div>
 
 <div class="controls-overlay">
-    <div class="controls-content">
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bg"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="prog-bg" id="progCont">
+        <div class="prog-bar" id="progBar"><div class="prog-handle" id="progHandle" onmousedown="startPointDrag(event)"></div></div>
+    </div>
+    <div class="bottom-ui">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button class="play-btn" id="playBtn" onclick="handlePlayClick()"><i class="fa-solid fa-play"></i></button>
+            <div class="time-box">
+                <div class="main-time" id="labelYear">西元前 5000 年</div>
+                <div class="sub-time" id="labelDate">1 月 1 日</div>
+            </div>
         </div>
 
-        <div class="bottom-ui">
-            <button class="play-btn" id="playBtn">▶</button>
-            
-            <div class="year-info">
-                <div class="year-label" id="yearLabel">載入中...</div>
-                <div style="font-size: 11px; color: #7f8c8d; margin-top: 4px;">滾輪縮放地圖 / 使用按鈕控制時間</div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="input-group">
+                <input type="tel" id="inY" placeholder="年份">
+                <input type="tel" id="inM" placeholder="月">
+                <input type="tel" id="inD" placeholder="日">
+                <button class="icon-btn" onclick="manualJump()"><i class="fa-solid fa-satellite-dish"></i></button>
             </div>
-
-            <div class="control-group">
-                <span style="font-size: 13px; font-weight: bold; color: #34495e;">跳轉:</span>
-                <input type="number" id="manualYearInput" class="year-input" placeholder="年份">
-                <button class="ui-btn" id="jumpBtn">確定</button>
-            </div>
-
-            <div class="control-group">
-                <span style="font-size: 13px; font-weight: bold; color: #34495e;">運行速度:</span>
-                <div class="speed-ctrl">
-                    <button class="ui-btn" onclick="changeSpeed(-1)">－</button>
-                    <div class="speed-display" id="speedDisplay">10 年</div>
-                    <button class="ui-btn" onclick="changeSpeed(1)">＋</button>
-                </div>
-            </div>
-
-            <div style="font-size: 11px; color: #95a5a6; margin-left: auto; text-align: right;">
-                速度級別：1, 5, 10, 50, 100<br>點擊按鈕切換播放速度
+            <div class="input-group">
+                <button class="icon-btn" onclick="adjSpeed(-1)"><i class="fa-solid fa-angles-left"></i></button>
+                <div id="spTxt" class="speed-display">1 年 / 秒</div>
+                <button class="icon-btn" onclick="adjSpeed(1)"><i class="fa-solid fa-angles-right"></i></button>
             </div>
         </div>
     </div>
@@ -173,749 +142,205 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // --- 1. 定義時代圖標映射表 ---
-    // 你可以在這裡更換你的本地圖片路徑
-    const iconConfig = {
-        "舊石器時代": "paleolithic.png",
-        "新石器時代": "neolithic.png",
-        "金屬器時代": "Metal Age.png",
-        "原住民": "Indigenous.tw.png",
-        "西班牙": "Spain.png",
-        "荷蘭": "Netherlands.png",
-        "明鄭時期": "Ming-Zheng Era.png",
-        "清領時期": "Qing-era.png",
-        "日治時期": "jp.png",
-        "中華民國": "tw.png",
-        "繩紋時代": "jomon.png",
-        "彌生時代(日本)": "yayoi.jp.png",
-        "古墳時代": "kofun.jp.png",
-        "飛鳥時代": "Asuka Period.jp.png",
-        "奈良時代": "Nara Period.jp.png",
-        "預設圖片": "Gemini_Generated_Image_jzkiiqjzkiiqjzki.png"
-    };
+    const map = L.map('map', { zoomControl: false }).setView([23.7, 120.9], 7);
+    L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&hl=zh-TW', { maxZoom: 20 }).addTo(map);
 
-    // --- 2. 遺跡資料 (新增 iconType 屬性) ---
-     const locations = [
-    {
-        iconType: "舊石器時代",
-        name: "八仙洞遺址 (長濱文化)",
-        period: "舊石器時代 (早期)",
-        latlng: [23.3961, 121.4772], // 台東長濱
-        startYear: -30000,
-        endYear: -5000,
-        description: "台灣已知最古老的史前文化遺址。在此海蝕洞穴中發現了大量打製石器，證明了三萬年前台灣已有智人居住。",
-        sources: [{ label: "🔗台灣史前文化雲", url: "https://icloud.nmp.gov.tw/Library/PhraseologyContent?a=190&plid=316" }]
-    },
-    {
-        iconType: "舊石器時代",
-        name: "臺東小馬遺址 (龍洞)",
-        period: "舊石器時代 (中期)",
-        latlng: [22.9861, 121.3128], 
-        startYear: -6000,
-        endYear: -4000,
-        description: "位於台東成功。此處發現了台灣罕見的舊石器時代人類遺骸及墓葬，對於了解早期台灣人的體質與葬俗極具價值。",
-        sources: [{ label: "🔗客家電視台", url: "https://www.hakkatv.org.tw/news-detail/1624272223478954" }]
-    },
-    {
-        iconType: "舊石器時代",
-        name: "屏東龍坑遺址",
-        period: "舊石器時代 (中期)",
-        latlng: [21.9056, 120.8464], // 恆春
-        startYear: -8000,
-        endYear: -5000,
-        description: "位於墾丁龍坑，發現了打製石器等遺跡，顯示在全新世初期，台灣最南端已有先民活動。",
-        sources: [{ label: "🔗墾丁國家公園管理處", url: "https://www.ktnp.gov.tw/" }]
-    },
-    {
-        iconType: "舊石器時代",
-        name: "鵝鑾鼻第二遺址",
-        period: "舊石器時代 (後期)",
-        latlng: [21.9031, 120.8522],
-        startYear: -5000,
-        endYear: -3500,
-        description: "位於鵝鑾鼻燈塔附近，此地層出土了細小石器與大量貝塚，反映了史前居民對海洋資源的利用。",
-        sources: [{ label: "🔗國家文化記憶庫", url: "https://memory.culture.tw/" }]
-    },
-    {
-        iconType: "新石器時代", // 台灣新石器早期特色為繩紋陶，暫用此圖標
-        name: "大坌坑遺址 (大坌坑文化)",
-        period: "新石器時代 (早期)",
-        latlng: [25.1436, 121.4042], // 新北八里
-        startYear: -5000,
-        endYear: -3000,
-        description: "南島語族祖先文化的代表。出土了粗繩紋陶器，反映了早期居民農業、狩獵與採集並行的生活方式。",
-        sources: [{ label: "🔗台灣史前文化雲", url: "https://icloud.nmp.gov.tw/Library/PhraseologyContent?a=190&plid=299" }]
-    },
-    {
-        iconType: "新石器時代", // 圓山文化有貝塚，圖標風格相近
-        name: "圓山遺址 (圓山文化)",
-        period: "新石器時代 (中/後期)",
-        latlng: [25.0719, 121.5217], // 台北圓山
-        startYear: -3300,
-        endYear: -2300,
-        description: "以巨大的「貝塚」聞名。此處發現了豐富的磨製石器與精美玉器，顯示當時台北盆地已有穩定的社會組織。",
-        sources: [{ label: "🔗圓山考古遺址展示室", url: "https://www.nstm.gov.tw/" }]
-    },
-    {
-        iconType: "新石器時代",
-        name: "富山遺址 (富山文化)",
-        period: "新石器時代 (中期)",
-        latlng: [22.8256, 121.1878], // 台東卑南鄉
-        startYear: -4000,
-        endYear: -3000,
-        description: "位於台東海岸，以細繩紋紅陶為特徵。是研究東部史前居民遷徙與環境適應的重要地點。",
-        sources: [{ label: "🔗國立臺灣歷史博物館", url: "https://tcmb.culture.tw/zh-tw/detail?indexCode=Culture_Object&id=263343" }]
-    },
-    {
-        iconType: "新石器時代", // 卑南文化有石板棺與石柱，與古墳時代建築感契合
-        name: "卑南遺址 (卑南文化)",
-        period: "新石器時代 (後期)",
-        latlng: [22.7931, 121.1219], // 台東卑南
-        startYear: -3500,
-        endYear: -800,
-        description: "台灣規模最大、出土文物最豐富的史前遺址。以精美的玉器、石板棺墓葬群與「月形石柱」著稱。",
-        sources: [{ label: "🔗國立臺灣史前文化博物館", url: "https://www.nmp.gov.tw/" }]
-    },
-    {
-        iconType: "金屬器時代", // 十三行有煉鐵技術，暫用工藝感較強的圖標
-        name: "十三行遺址",
-        period: "金屬器時代",
-        latlng: [25.1565, 121.4045], // 新北八里
-        startYear: 50,
-        endYear: 1650,
-        description: "台灣金屬器時代的代表。發現了煉鐵爐址，並出土大量精美陶器（如人面陶罐）與海外貿易獲得的中國瓷器、玻璃珠。",
-        sources: [{ label: "🔗十三行博物館官網", url: "https://www.sshm.ntpc.gov.tw/" }]
-    },
-    {
-        iconType: "金屬器時代",
-        name: "蔦松遺址",
-        period: "金屬器時代",
-        latlng: [23.1364, 120.2878], // 台南台南科學園區附近
-        startYear: 500,
-        endYear: 1350,
-        description: "位於台南地區。以鳥頭狀陶製品與精美的紅褐色陶器為特徵，顯示了平原地區發達的農業與工藝生活。",
-        sources: [{ label: "🔗南科考古館", url: "https://stsp.nmp.gov.tw/" }]
-    },
-    {
-        iconType: "金屬器時代",
-        name: "靜浦遺址 (阿美文化祖先)",
-        period: "金屬器時代",
-        latlng: [23.4489, 121.4936], // 花蓮豐濱
-        startYear: 500,
-        endYear: 1600,
-        description: "位於秀姑巒溪口。被認為是阿美族祖先的文化，出土了大量陶片與石製建築遺構，反映了東海岸史前居民的海洋生活。",
-        sources: [{ label: "🔗國立臺灣歷史博物館", url: "https://tcmb.culture.tw/zh-tw/detail?indexCode=Culture_Place&id=587792" }]
-    },
-    {
-        iconType: "原住民",
-        name: "原住民",
-        period: "南島民族",
-        latlng: [23.0000, 121.0000], // 花蓮豐濱
-        startYear: -4000,
-        endYear: 2026,
-        description: "南島民族 的祖先遷徙至此，發展出多元的原住民文化。 ",
-    },
-    {
-        iconType: "荷蘭",
-        name: "熱蘭遮堡 (安平古堡)",
-        period: "荷蘭統治時期",
-        latlng: [23.0016, 120.1607], // 台南安平
-        startYear: 1624,
-        endYear: 1662,
-        description: "荷蘭東印度公司(VOC)在台灣的統治中心，是當時國際貿易與軍事指揮的基地，現存部分古城牆遺跡。",
-        sources: [{ label: "🔗台南市文化局", url: "https://historic.tainan.gov.tw/index.php?option=module&lang=cht&task=pageinfo&id=58&index=2" }]
-    },
-    {
-        iconType: "荷蘭",
-        name: "普羅民遮城 (赤崁樓)",
-        period: "荷蘭統治時期",
-        latlng: [22.9975, 120.2025], // 台南市中心
-        startYear: 1653,
-        endYear: 1662,
-        description: "荷蘭人為強化行政管理而興建的城堡，與熱蘭遮堡遙遙相對。明鄭時期改為承天府署。",
-        sources: [{ label: "🔗台南市文化局", url: "https://historic.tainan.gov.tw/index.php?option=module&lang=cht&task=pageinfo&id=46&index=3" }]
-    },
-    {
-        iconType: "西班牙",
-        name: "聖薩爾瓦多城 (聖薩爾瓦多城跡)",
-        period: "西班牙統治時期",
-        latlng: [25.1539, 121.7656], // 基隆和平島
-        startYear: 1626,
-        endYear: 1642,
-        description: "西班牙人佔領北台灣的軍事要塞，目的是為了與日本、中國進行貿易，並與南部的荷蘭勢力抗衡。",
-        sources: [{ label: "🔗基隆市文化觀光局", url: "https://klgreat.klcg.gov.tw/History_Content.aspx?n=8106&s=8853" }]
-    },
-    {
-        iconType: "西班牙",
-        name: "聖多明哥城 (紅毛城)",
-        period: "西班牙統治時期",
-        latlng: [25.1755, 121.4332], // 新北淡水
-        startYear: 1628,
-        endYear: 1642,
-        description: "西班牙人在淡水興建的防禦工事。後被荷蘭人、英國人改建，是台灣現存最完整的古老建築之一。",
-        sources: [{ label: "🔗新北市立淡水古蹟博物館", url: "https://www.tshs.ntpc.gov.tw/" }]
-    },
-    {
-        iconType: "明鄭時期",
-        name: "承天府 (赤崁樓)",
-        period: "明鄭時期",
-        latlng: [22.9975, 120.2025],
-        startYear: 1662,
-        endYear: 1683,
-        description: "鄭成功攻取台灣後，將荷蘭普羅民遮城改設為承天府，作為全台最高行政機構，推行屯田制度。",
-        sources: [{ label: "🔗台南市政府", url: "https://www.tainan.gov.tw/cp.aspx?n=13291" }]
-    },
-    {
-        iconType: "明鄭時期",
-        name: "台南孔子廟 (全臺首學)",
-        period: "明鄭時期",
-        latlng: [22.9906, 120.2028],
-        startYear: 1665,
-        endYear: 1683,
-        description: "由陳永華建議興建，是台灣第一座孔廟，象徵漢文化與儒學教育正式植入台灣。",
-        sources: [{ label: "🔗台南孔廟官網", url: "https://www.tn-confucius.org.tw/" }]
-    },
+    const locations = (typeof historicalData !== 'undefined') ? historicalData : [];
+    const icons = (typeof iconStyles !== 'undefined') ? iconStyles : { "預設圖片": "https://cdn-icons-png.flaticon.com/512/684/684908.png" };
 
-    // --- 清領時期 (1683 - 1895) ---
-    {
-        iconType: "清領時期",
-        name: "台灣府城 (大南門)",
-        period: "清領時期",
-        latlng: [22.9868, 120.2039],
-        startYear: 1684,
-        endYear: 1895,
-        description: "清朝統治台灣初期的行政中心。後期台灣重心北移，此地仍為南部文化重心。",
-        sources: [{ label: "🔗國立台灣歷史博物館", url: "https://www.nmth.gov.tw/" }]
-    },
-    {
-        iconType: "清領時期",
-        name: "台北府城 (北門)",
-        period: "清領時期",
-        latlng: [25.0476, 121.5111],
-        startYear: 1884,
-        endYear: 1895,
-        description: "清末因應開港與防務，由劉銘傳等人主導興建。北門是目前唯一完整保留原貌的城門。",
-        sources: [{ label: "🔗文化部文化資產局", url: "https://nchdb.boch.gov.tw/assets/overview/monument/19980903000001" }]
-    },
+    const now = new Date();
+    const minY = -5000;
+    const maxY = now.getFullYear() + (now.getMonth() / 12);
+    
+    let curY = minY; 
+    let isPlaying = false, animFrame, lastT = 0, spIdx = 2;
+    const markers = new Map();
+    const speeds = [{t:"1 日 / 秒", v:1/365}, {t:"1 月 / 秒", v:1/12}, {t:"1 年 / 秒", v:1}, {t:"10 年 / 秒", v:10}, {t:"100 年 / 秒", v:100}];
 
-    // --- 日治時期 (1895 - 1945) ---
-    {
-        iconType: "日治時期",
-        name: "台灣總督府 (總統府)",
-        period: "日治時期",
-        latlng: [25.0400, 121.5120],
-        startYear: 1895,
-        endYear: 1945,
-        description: "日治時期的最高權力機構。建築採文藝復興風格，見證了台灣近代城市規劃與殖民統治歷史。",
-        sources: [{ label: "🔗文化部文化資產局", url: "https://nchdb.boch.gov.tw/assets/overview/monument/19980610000001" }]
-    },
-    {
-        iconType: "日治時期",
-        name: "八田與一與烏山頭水庫",
-        period: "日治時期",
-        latlng: [23.2133, 120.3708],
-        startYear: 1920,
-        endYear: 1945,
-        description: "嘉南大圳的核心工程，當時亞洲最大的土石壩，徹底改變了嘉南平原的農業型態。",
-        sources: [{ label: "🔗台南市政府", url: "https://www.tainan.gov.tw/news_content.aspx?n=13370&s=8636707" }]
-    },
-
-    // --- 中華民國時期 (1945 - 2026) ---
-    {
-        iconType: "中華民國",
-        name: "中正紀念堂",
-        period: "中華民國時期",
-        latlng: [25.0358, 121.5197],
-        startYear: 1980,
-        endYear: 2026,
-        description: "戰後代表性大型建築，現為自由廣場，是台灣民主運動發展的重要見證地。",
-        sources: [{ label: "🔗中正紀念堂官網", url: "https://www.cksmh.gov.tw/" }]
-    },
-    {
-        iconType: "中華民國",
-        name: "台北 101",
-        period: "中華民國時期",
-        latlng: [25.0339, 121.5644],
-        startYear: 2004,
-        endYear: 2026,
-        description: "台灣現代發展的指標，曾為世界第一高樓，象徵台灣邁入全球化與高科技產業時代。",
-        sources: [{ label: "🔗台北101官網", url: "https://www.taipei-101.com.tw/" }]
-    },
-
-        {
-            iconType: "繩紋時代",
-            name: "入江・高砂貝塚遺址",
-            period: "繩紋時代 (中/晚期)",
-            latlng: [42.5512, 140.7675],
-            startYear: -3500,
-            endYear: -800,
-            description: "位於北海道洞爺湖畔。這是一處包含居住區與墓地的貝塚，出土了反映當時人與海洋資源緊密關係的遺物。",
-            sources: [{ label: "🔗日本北部的繩文遺跡群(入江貝塚)", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/irie" },
-                      { label: "🔗日本北部的繩文遺跡群(高砂貝塚)", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/takasago" }]
-        },
-        {
-            iconType: "繩紋時代",
-            name: "三內丸山遺址",
-            period: "繩紋時代 (早/中期)",
-            latlng: [40.8117, 140.6975],
-            startYear: -3900,
-            endYear: -2200,
-            description: "日本最大規模的定居村落遺跡。發現了巨大的立柱建築遺跡與大量的貿易物品，顯示當時已有發達的社會組織。",
-            sources: [{ label: "🔗日本北部的繩文遺跡群", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/sannai-maruyama" },
-                      { label: "🔗三內丸山特別史跡官網", url: "https://sannaimaruyama.pref.aomori.jp/chinese/" }]
-        },
-        {
-            iconType: "繩紋時代",
-            name: "大湯環狀列石",
-            period: "繩紋時代 (後期)",
-            latlng: [40.2711, 140.8064],
-            startYear: -2000,
-            endYear: -1500,
-            description: "位於秋田縣，由野中堂與萬座兩個圓環組成的巨大石陣，被認為是祭祀與觀測季節變換的聖地。",
-            sources: [{ label: "🔗日本北部的繩文遺跡群", url: "https://jomon-japan.jp/zh-tw/learn/jomon-sites/oyu" },
-                      { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/13837/" }]
-        },
-        {
-            iconType: "繩紋時代",
-            name: "尖石石器時代遺跡",
-            period: "繩紋時代 (中期)",
-            latlng: [36.0125, 138.2386],
-            startYear: -3000,
-            endYear: -2000,
-            description: "位於長野縣茅野市。出土了兩尊日本國寶陶偶：『繩紋女神』與『假面女神』，是日本繩紋藝術的巔峰。",
-            sources: [{ label: "🔗尖石考古博物館", url: "https://www.city.chino.lg.jp/site/togariishi/" }]
-        },
-        {
-            iconType: "彌生時代(日本)",
-            name: "吉野里遺址",
-            period: "彌生時代 (全期)",
-            latlng: [33.3267, 130.3842],
-            startYear: -300,
-            endYear: 300,
-            description: "位於佐賀縣，是日本規模最大的環壕集落遺址。這裡重現了彌生時代的高床式倉庫、祭壇與王墓，是研究彌生社會結構最重要的地點。",
-            sources: [{ label: "🔗吉野里歷史公園官網", url: "https://www.yoshinogari.jp/" },
-                      { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/11584/" },
-                      { label: "🔗吉野里歷史公園官網小知識", url: "https://www.yoshinogari.jp/ch_h/introduction/qa/" }]
-        },
-        {
-            iconType: "彌生時代(日本)",
-            name: "登呂遺址",
-            period: "彌生時代 (後期)",
-            latlng: [34.9564, 138.4081],
-            startYear: 100,
-            endYear: 300,
-            description: "位於靜岡縣。這裡是首次發現彌生時代完整水田結構的遺址，證明了當時發達的稻作文化與灌溉技術。",
-            sources: [{ label: "🔗登呂博物館", url: "https://www.yoshinogari.jp/" },
-                      { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/18214/" }]
-        },
-        {
-            iconType: "彌生時代(日本)",
-            name: "板付遺址",
-            period: "彌生時代 (早期)",
-            latlng: [33.5682, 130.4539],
-            startYear: -400,
-            endYear: 100,
-            description: "位於福岡縣。日本最古老的水田稻作集落之一，證實了繩紋末期到彌生初期就已開始穩定的稻米種植。",
-            sources: [{ label: "🔗福岡市經濟觀光文化局", url: "https://bunkazai.city.fukuoka.lg.jp/sp/cultural_properties/detail/430" },
-                      { label: "🔗Trip訂房網", url: "https://tw.trip.com/travel-guide/attraction/fukuoka/itazuke-iseki-38740036/" }]
-        },
-        {
-            iconType: "彌生時代(日本)",
-            name: "吉武高木遺址",
-            period: "彌生時代 (早/中期)",
-            latlng: [33.5379, 130.3185],
-            startYear: -200,
-            endYear: 100,
-            description: "位於福岡縣。被譽為『國王之墓』，出土了最早的銅劍、銅鏡、勾玉（三神器原型）組合。",
-            sources: [{ label: "🔗福岡市經濟觀光文化局", url: "https://bunkazai.city.fukuoka.lg.jp/yoshitaketakagi/" }]
-        },
-        {
-            iconType: "彌生時代(日本)",
-            name: "原之辻遺址",
-            period: "彌生時代 (早/古墳時代)",
-            latlng: [33.7583, 129.7547],
-            startYear: -200,
-            endYear: 100,
-            description: "長崎縣壹岐島。中國史書記載的『一支國』都城，是彌生時代重要的海上貿易轉運站。",
-            sources: [{ label: "🔗一支國博物館", url: "http://www.iki-haku.jp/" }]
-        },
-        {
-            iconType: "彌生時代(日本)",
-            name: "唐古・鍵遺址",
-            period: "彌生時代 (全期)",
-            latlng: [34.5694, 135.7993],
-            startYear: -200,
-            endYear: 100,
-            description: "位於奈良縣。近畿地區具代表性的環壕集落，出土了大量繪有建築圖案的陶器與木製品。",
-            sources: [{ label: "🔗唐古・鍵考古學博物館", url: "https://www.town.tawaramoto.nara.jp/karakokagi/" }]
-        },
-        {
-            iconType: "舊石器時代",
-            name: "岩宿遺址",
-            period: "舊石器時代 (中/後期)",
-            latlng: [36.4001, 139.2875],
-            startYear: -35000,
-            endYear: -13000,
-            description: "位於群馬縣。1949年由相澤忠洋發現，在關東壤土層中出土了石器，證明了日本舊石器時代的存在，徹底改變了日本史前史的研究。",
-            sources: [{ label: "🔗岩宿博物館", url: "https://www.city.midori.gunma.jp/iwajuku/" },
-                      { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-12502001/" }]
-         },
-         {
-            iconType: "舊石器時代",
-            name: "砂原遺址",
-            period: "舊石器時代 (早期) 研究中，待確定",
-            latlng: [35.4111, 132.6847], // 出雲地區
-            startYear: -120000,
-            endYear: -110000,
-            description: "位於島根縣出雲市。在此發現了被認為是日本最古老的石器（約12萬年前），雖然學界仍有爭論，但它是挑戰日本人類居住史極限的重要遺址。",
-         },
-         {
-             iconType: "舊石器時代",
-             name: "矢出川遺址",
-             period: "舊石器時代 (後期)",
-             latlng: [35.9383, 138.4722], // 長野縣野邊山高原
-             startYear: -16000,
-             endYear: -13000,
-             description: "位於長野縣。這是日本最早發現『細石器』（微小精細的石刃）的地點，象徵著舊石器時代向繩紋時代過渡的技術演進。",
-             sources: [{ label: "🔗文化庁", url: "https://bunka.nii.ac.jp/heritages/detail/216479" },
-                       { label: "🔗日本旧石器学会", url: "https://palaeolithic.jp/sites/yadegawa/index.htm" }]
-         },
-         {
-             iconType: "古墳時代",
-             name: "仁德天皇陵 (大仙陵古墳)",
-             period: "古墳時代 (中期)",
-             latlng: [34.5644, 135.4839],
-             startYear: 400,
-             endYear: 500,
-             description: "位於大阪府堺市。日本最大的前方後圓墳，與埃及胡夫金字塔、中國秦始皇陵並稱為世界三大墳墓。",
-             sources: [{ label: "🔗堺市博物館", url: "https://www.city.sakai.lg.jp/kanko/hakubutsukan/" },
-                       { label: "🔗堺觀光會展協會", url: "https://www.sakai-tcb.or.jp/zh-tw/spot/detail/126" },
-                       { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/12281/" },
-                       { label: "🔗完美行", url: "https://tw.wamazing.com/media/article/a-3187/" }]
-
-         },
-         {
-             iconType: "古墳時代",
-             name: "箸墓古墳",
-             period: "古墳時代 (早期)",
-             latlng: [34.5395, 135.8411],
-             startYear: 250,
-             endYear: 350,
-             description: "位於奈良縣櫻井市。被認為是最早的大型前方後圓墳，傳說與卑彌呼女王有關，象徵著古墳時代的開端。",
-             sources: [{ label: "🔗JAPAN VIDEOS", url: "https://cooljapan-videos.com/tw/articles/wtrk0oxv" },
-                       { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-2400380/" }]
-         },
-         {
-             iconType: "古墳時代",
-             name: "藤之木古墳",
-             period: "古墳時代 (後期)",
-             latlng: [34.6111, 135.7289],
-             startYear: 550,
-             endYear: 600,
-             description: "位於奈良縣斑鳩町。雖然規模較小，但出土了極其奢華的馬具與金銅飾品，且未被盜掘，是研究古墳工藝的寶庫。",
-             sources: [{ label: "🔗維基百科", url: "https://zh.wikipedia.org/zh-tw/%E8%97%A4%E4%B9%8B%E6%9C%A8%E5%8F%A4%E5%A2%B3" },
-                       { label: "🔗iwafu", url: "https://www.iwafu.com/tw/events/1035399" },
-                       { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-1301162/" }]
-
-         },
-         {
-             iconType: "古墳時代",
-             name: "高松塚古墳",
-             period: "古墳時代 (後期)",
-             latlng: [34.4603, 135.8058],
-             startYear: 650,
-             endYear: 750,
-             description: "位於奈良縣明日香村。以精美的『飛鳥美人』壁畫聞名，融合了中國與朝鮮半島的文化風格，是日本繪畫史的巔峰。",
-             sources: [{ label: "🔗國營飛鳥歷史公園", url: "https://www.asuka-park.jp/tw/area/takamatsuzuka/" },
-                       { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-1301163/" }]
-         },
-         {
-            iconType: "飛鳥時代",
-            name: "飛鳥板蓋宮跡",
-            period: "飛鳥時代",
-            latlng: [34.4735, 135.8214],
-            startYear: 642,
-            endYear: 655,
-            description: "皇極天皇的宮殿。這裡是「乙巳之變」的發生地，蘇我入鹿在此被暗殺，隨後開啟了日本史上著名的「大化革新」。",
-            sources: [{ label: "🔗明日香村觀光導覽", url: "https://asukamura.com/" },
-                      { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-2400043/" },
-                      { label: "🔗易遊網", url: "https://vacation.eztravel.com.tw/sight/plc0000056665/%E9%A3%9B%E9%B3%A5%E6%9D%BF%E8%93%8B%E5%AE%AE%E8%B7%A1" }]
-        },
-        {
-            iconType: "飛鳥時代",
-            name: "飛鳥寺 (法興寺)",
-            period: "飛鳥時代",
-            latlng: [34.4789, 135.8203],
-            startYear: 596,
-            endYear: 710,
-            description: "日本最古老的正式寺院。由蘇我氏興建，供奉著著名的「飛鳥大佛」，展現了當時受到北魏風格影響的造像藝術。",
-            sources: [{ label: "🔗易遊網", url: "https://vacation.eztravel.com.tw/sight/plc0000056660/asuka-ji-%E9%A3%9B%E9%B3%A5%E5%AF%BA" },
-                      { label: "🔗金城事務所", url: "https://voniblog.com/%E9%A3%9B%E9%B3%A5%E5%AF%BA/" }]
-        },
-        {
-            iconType: "飛鳥時代",
-            name: "石舞台古墳",
-            period: "飛鳥時代",
-            latlng: [34.4667, 135.8267],
-            startYear: 600,
-            endYear: 700,
-            description: "巨大的方墳石室，重達2300噸的巨石外露。相傳是飛鳥時代權臣蘇我馬子的墓，是飛鳥地區最壯觀的巨石建築。",
-            sources: [{ label: "🔗國營飛鳥歷史公園", url: "https://www.asuka-park.jp/tw/area/ishibutai/" },
-                      { label: "🔗好運日本行", url: "https://www.gltjp.com/zh-hant/directory/item/11635/" },
-                      { label: "🔗JNTO", url: "https://www.japan.travel/tw/spot/1021/" }]
-        },
-        {
-            iconType: "飛鳥時代",
-            name: "龜形石造物",
-            period: "飛鳥時代",
-            latlng: [34.4752, 135.8228],
-            startYear: 650,
-            endYear: 710,
-            description: "神秘的圓形池與水渠組合，其石材雕刻成烏龜形狀。推測與齊明天皇時期的祭祀儀式或宮廷供水系統有關。",
-            sources: [{ label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/guide/NTJtrv0158-zh-tw/" }]
-        },
-        {
-            iconType: "飛鳥時代",
-            name: "法隆寺",
-            period: "飛鳥時代",
-            latlng: [34.6141, 135.7356],
-            startYear: 607,
-            endYear: 710,
-            description: "由聖德太子興建，其西院伽藍是世界現存最古老的木造建築群，1993年成為日本首個世界文化遺產。",
-            sources: [{ label: "🔗法隆寺官網", url: "http://www.horyuji.or.jp/" },
-                      { label: "🔗好運日本行", url: "http://www.horyuji.or.jp/" },
-                      { label: "🔗法隆寺・中宮寺巡禮", url: "https://booking.letsgojp.com/plans/3284" }]
-        },
-        {
-            iconType: "飛鳥時代",
-            name: "中宮寺",
-            period: "飛鳥時代",
-            latlng: [34.6147, 135.7383],
-            startYear: 620,
-            endYear: 710,
-            description: "緊鄰法隆寺，由聖德太子為其母后建立的尼院。寺內供奉的「菩薩半跏像」被譽為世界三大微笑像之一。",
-            sources: [{ label: "🔗IKIDANE", url: "https://ikidane-nippon.com/zh-Hant-TW/spots/chugu-ji" },
-                      { label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-14400827n/" },
-                      { label: "🔗法隆寺・中宮寺巡禮", url: "https://booking.letsgojp.com/plans/3284" }]
-        },
-        {
-            iconType: "飛鳥時代",
-            name: "難波宮跡",
-            period: "飛鳥時代 / 奈良時代",
-            latlng: [34.6806, 135.5233],
-            startYear: 645,
-            endYear: 784,
-            description: "大化革新後遷都的地點。此處發現了兩期建築遺構：前期難波宮（飛鳥時期）與後期難波宮（奈良時期）。",
-            sources: [{ label: "🔗Japan Travel", url: "https://japantravel.navitime.com/zh-tw/area/jp/spot/02301-1903192/" },
-                      { label: "🔗大阪市建設局企劃部", url: "https://takenouchikaidou.com/zh-TW/page/naniwa-no-miya-ato-park" }]
-        },
-        {
-            iconType: "飛鳥時代",
-            name: "近江大津宮跡",
-            period: "飛鳥時代",
-            latlng: [35.0211, 135.8567],
-            startYear: 667,
-            endYear: 672,
-            description: "天智天皇遷都至滋賀大津。雖然遷都時間僅五年，但在此頒布了《近江令》，是日本律令制法律的重要基石。",
-            sources: [{ label: "🔗文化庁", url: "https://bunka.nii.ac.jp/heritages/detail/163041" },
-                      { label: "🔗iwafu", url: "https://www.iwafu.com/tw/events/1017848" }]
-        },
-        {
-            iconType: "奈良時代",
-            name: "平城宮跡 (平城京)",
-            period: "奈良時代",
-            latlng: [34.6931, 135.7944],
-            startYear: 710,
-            endYear: 784,
-            description: "日本首個模仿唐朝長安城建立的宏大首都。此遺址保留了朱雀門與第一次大極殿，象徵著天平文化的繁榮。",
-            sources: [{ label: "🔗平城宮跡歷史公園", url: "https://www.heijo-park.jp/" }]
-        },
-        {
-            iconType: "奈良時代",
-            name: "東大寺 (大和國總國分寺)",
-            period: "奈良時代",
-            latlng: [34.6889, 135.8398],
-            startYear: 728,
-            endYear: 794,
-            description: "聖武天皇所建，供奉著著名的「奈良大佛」。身為全國國分寺之首，它是佛教守護國家的中心點。",
-            sources: [{ label: "🔗東大寺官網", url: "http://www.todaiji.or.jp/" },
-                      { label: "🔗正倉院", url: "https://shosoin.kunaicho.go.jp/" }]
-        },
-        {
-            iconType: "奈良時代",
-            name: "唐招提寺",
-            period: "奈良時代",
-            latlng: [34.6751, 135.7849],
-            startYear: 759,
-            endYear: 794,
-            description: "由唐朝高僧鑒真和尚親自下令建造，是律宗的總本山。其金堂保留了天平時代最純粹的建築風格。",
-            sources: [{ label: "🔗唐招提寺官網", url: "https://toshodaiji.jp/chinese/index.html" }]
-        },
-        {
-            iconType: "奈良時代",
-            name: "藥師寺",
-            period: "飛鳥 / 奈良時代",
-            latlng: [34.6681, 135.7844],
-            startYear: 680,
-            endYear: 794,
-            description: "由天武天皇發願興建，遷都平城京後重修。其東塔被譽為「凍結的音樂」，是極少數從奈良時代存留至今的古塔。",
-            sources: [{ label: "🔗藥師寺官網", url: "https://yakushiji.or.jp/" }]
-        },
-        {
-            iconType: "奈良時代",
-            name: "興福寺",
-            period: "奈良時代",
-            latlng: [34.6830, 135.8306],
-            startYear: 710,
-            endYear: 794,
-            description: "藤原氏的氏寺，是法相宗的中心。寺內的阿修羅像與五重塔是奈良最具代表性的文化標誌。",
-            sources: [{ label: "🔗興福寺官網", url: "https://www.kohfukuji.com/" }]
-        },
-        {
-            iconType: "奈良時代",
-            name: "恭仁京跡 (大極殿遺址)",
-            period: "奈良時代 (短暫遷都)",
-            latlng: [34.7645, 135.8617],
-            startYear: 740,
-            endYear: 744,
-            description: "聖武天皇為了脫離佛教勢力干預而短暫遷都的地點。現存有巨大的遺址基石。",
-            sources: [{ label: "🔗京都府教育廳指導部文化財保護課", url: "https://kunikyu.com/zh-tw/" }]
-        },
-        {
-            iconType: "奈良時代",
-            name: "紫香樂宮 (甲賀宮)",
-            period: "奈良時代 (短暫遷都)",
-            latlng: [34.9122, 136.0820],
-            startYear: 742,
-            endYear: 745,
-            description: "聖武天皇下令開始鑄造東大寺大佛的最初地點，後因火災與地震回遷平城京。",
-            sources: [{ label: "🔗滋賀縣觀光導覽", url: "https://www.miho.jp/zh-TW/exhibition/shigarakigu-kokanosinbutsu/" }]
-        },
-        {
-            iconType: "奈良時代",
-            name: "元興寺",
-            period: "奈良時代",
-            latlng: [34.6781, 135.8317],
-            startYear: 710,
-            endYear: 794,
-            description: "從飛鳥寺遷至平城京後的名稱，是日本最古老的佛寺之一。屋頂保留了部分飛鳥時代的古老瓦片。",
-            sources: [{ label: "🔗元興寺官網", url: "https://gangoji-tera.or.jp/" }]
+    function getInterpolatedPos(loc, year) {
+        if (!loc.path) return loc.latlng;
+        const p = loc.path;
+        if (year <= p[0][0]) return [p[0][1], p[0][2]];
+        if (year >= p[p.length-1][0]) return [p[p.length-1][1], p[p.length-1][2]];
+        for (let i = 0; i < p.length - 1; i++) {
+            if (year >= p[i][0] && year <= p[i+1][0]) {
+                const r = (year - p[i][0]) / (p[i+1][0] - p[i][0]);
+                return [p[i][1] + (p[i+1][1] - p[i][1]) * r, p[i][2] + (p[i+1][2] - p[i][2]) * r];
+            }
         }
-    ];
-    //調整地圖初始視野
-    const map = L.map('map', { worldCopyJump: true, zoomControl: false }).setView([30.0, 130.0], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    // 輔助函式：將年份數字轉為中文格式
-    function formatYearText(year) {
-        const y = Math.floor(year);
-        if (y < 0) return `西元前 ${Math.abs(y).toLocaleString()}`;
-        if (y === 0) return `西元 1`;
-        return `西元 ${y.toLocaleString()}`;
     }
 
-    const aboutBtn = document.getElementById('aboutBtn');
-    const aboutPanel = document.getElementById('aboutPanel');
-    const closeAbout = document.getElementById('closeAbout');
-    aboutBtn.onclick = () => { aboutPanel.classList.add('expanded'); aboutBtn.style.display = 'none'; };
-    closeAbout.onclick = () => { aboutPanel.classList.remove('expanded'); setTimeout(() => aboutBtn.style.display = 'flex', 400); };
-
-
-
-    // --- 3. 初始化標記 (修改此處以支援多圖標) ---
-    locations.forEach(loc => {
-        // 根據 iconType 從映射表中選取路徑，若無則用預設
-        const iconPath = iconConfig[loc.iconType] || iconConfig["default"];
-
-        const customIcon = L.icon({
-            iconUrl: iconPath, 
-            iconSize: [50, 50],
-            iconAnchor: [25, 50],
-            popupAnchor: [0, -45]
-        });
-
-        const linksHTML = (loc.sources || []).map(s => 
-            `<li class="source-item"><a href="${s.url}" target="_blank" class="source-link">${s.label}</a></li>`
-        ).join('');
-
-        const popupHTML = `
-            <div style="width:250px;">
-                <strong style="font-size:18px; color:#c0392b;">${loc.name}</strong><br>
-                <div style="margin:5px 0; font-weight:bold; color:#d35400;">${loc.period}</div>
-                <div style="font-size:13px; margin-bottom:5px;">
-                    <b>活躍時期：</b>${formatYearText(loc.startYear)} - ${formatYearText(loc.endYear)}
-                </div>
-                <p style="font-size:12px; color:#444; background:#f4f4f4; padding:8px; border-radius:4px;">${loc.description}</p>
-                <ul class="source-list">${linksHTML}</ul>
-            </div>`;
-        
-        loc.marker = L.marker(loc.latlng, {icon: customIcon}).bindPopup(popupHTML);
-    });
-
-    // --- 核心邏輯 ---
-    const START = -16000, END = 2026;
-    let currentYear = 2026;
-    let isPlaying = false;
-    let playTimer = null;
-    const speeds = [1, 5, 10, 50, 100];
-    let speedIndex = 2;
-
-    function updateSpeedUI() {
-        document.getElementById('speedDisplay').innerText = speeds[speedIndex] + " 年";
-    }
-
-    window.changeSpeed = function(delta) {
-        speedIndex = Math.max(0, Math.min(speeds.length - 1, speedIndex + delta));
-        updateSpeedUI();
-    };
-
-    function syncUI(y) {
-        currentYear = Math.max(START, Math.min(END, y));
-        document.getElementById('progressBar').style.width = ((currentYear - START) / (END - START)) * 100 + "%";
-        document.getElementById('yearLabel').innerText = formatYearText(currentYear) + " 年";
-        
+    function refresh() {
         locations.forEach(loc => {
-            if (currentYear >= loc.startYear && currentYear <= loc.endYear) {
-                if (!map.hasLayer(loc.marker)) loc.marker.addTo(map);
-            } else {
-                if (map.hasLayer(loc.marker)) map.removeLayer(loc.marker);
+            const active = (curY >= loc.startYear && curY <= loc.endYear);
+            if (active) {
+                const pos = getInterpolatedPos(loc, curY);
+                if (!markers.has(loc.name)) {
+                    const sourceHtml = (loc.sources || []).map(s => `<a href="${s.url}" target="_blank" class="source-btn">${s.label}</a>`).join("");
+                    const m = L.marker(pos, {
+                        icon: L.icon({ iconUrl: icons[loc.iconType] || icons["預設圖片"], iconSize: [40, 40], iconAnchor: [20, 20], popupAnchor: [0, -15] })
+                    }).bindPopup(`
+                        <div class="custom-popup-content">
+                            <strong style="color:var(--primary);">${loc.name}</strong><br>
+                            <span style="font-size:11px; opacity:0.7;">${loc.period}</span>
+                            <hr style="border-top:1px solid rgba(0, 242, 254, 0.3); margin:8px 0;">
+                            <p style="font-size:13px;">${loc.description}</p>
+                            ${sourceHtml}
+                        </div>
+                    `).addTo(map);
+                    markers.set(loc.name, m);
+                } else { markers.get(loc.name).setLatLng(pos); }
+            } else if (markers.has(loc.name)) {
+                map.removeLayer(markers.get(loc.name));
+                markers.delete(loc.name);
             }
         });
+
+        let floorY = Math.floor(curY);
+        let displayY = floorY;
+        let prefix = "西元 ";
+
+        if (floorY < 0) {
+            displayY = Math.abs(floorY);
+            prefix = "西元前 ";
+        } else if (floorY === 0) {
+            displayY = 1;
+        }
+
+        let dateObj = new Date(2024, 0, 1);
+        dateObj.setDate(dateObj.getDate() + Math.floor((curY - floorY) * 365.25));
+        
+        document.getElementById('labelYear').innerText = `${prefix}${displayY} 年`;
+        document.getElementById('labelDate').innerText = `${dateObj.getMonth() + 1} 月 ${dateObj.getDate()} 日`;
+        
+        const progress = ((curY - minY) / (maxY - minY)) * 100;
+        document.getElementById('progBar').style.width = `${Math.min(100, Math.max(0, progress))}%`;
+        
+        updatePlayIcon();
     }
 
-    document.getElementById('progressContainer').addEventListener('click', (e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const pct = (e.clientX - rect.left) / rect.width;
-        syncUI(START + (END - START) * pct);
-    });
+    function triggerAlert(msg) {
+        const box = document.getElementById('alert-box');
+        box.innerText = msg;
+        box.classList.add('show');
+        setTimeout(() => box.classList.remove('show'), 3000);
+    }
 
-    document.getElementById('jumpBtn').addEventListener('click', () => {
-        const year = parseInt(document.getElementById('manualYearInput').value);
-        if (!isNaN(year)) syncUI(year);
-    });
+    // --- 核心修正：加入超出範圍跳轉判斷 ---
+    function manualJump() {
+        let y = parseInt(document.getElementById('inY').value);
+        let m = parseInt(document.getElementById('inM').value) || 1;
+        let d = parseInt(document.getElementById('inD').value) || 1;
 
-    document.getElementById('playBtn').addEventListener('click', function() {
-        if (isPlaying) {
-            clearInterval(playTimer);
-            this.innerText = "▶";
-        } else {
-            if (currentYear >= END) syncUI(START);
-            playTimer = setInterval(() => {
-                if (currentYear < END) {
-                    syncUI(currentYear + speeds[speedIndex]);
-                } else {
-                    clearInterval(playTimer);
-                    document.getElementById('playBtn').innerText = "▶";
-                    isPlaying = false;
-                }
-            }, 50);
-            this.innerText = "Ⅱ";
+        if (isNaN(y) || y === 0) {
+            triggerAlert("請輸入有效年份 (無 0 年)");
+            return;
         }
-        isPlaying = !isPlaying;
-    });
 
-    updateSpeedUI();
-    syncUI(currentYear);
+        let targetY = y + ((m - 1) / 12) + ((d - 1) / 365);
+        
+        if (targetY < minY) {
+            triggerAlert(`超出範圍：限制為西元前 ${Math.abs(minY)} 年之後`);
+            curY = minY;
+        } else if (targetY > maxY) {
+            triggerAlert("超出範圍：不能超過當前時間");
+            curY = maxY;
+        } else {
+            curY = targetY;
+        }
+
+        isPlaying = false;
+        refresh();
+    }
+
+    function handlePlayClick() {
+        if (curY >= maxY) { curY = minY; refresh(); }
+        isPlaying = !isPlaying;
+        if (isPlaying) { lastT = 0; animFrame = requestAnimationFrame(run); }
+        else { cancelAnimationFrame(animFrame); }
+        updatePlayIcon();
+    }
+
+    function updatePlayIcon() {
+        const btn = document.getElementById('playBtn');
+        btn.innerHTML = isPlaying ? '<i class="fa-solid fa-pause"></i>' : (curY >= maxY ? '<i class="fa-solid fa-rotate-right"></i>' : '<i class="fa-solid fa-play"></i>');
+    }
+
+    function run(t) {
+        if (!isPlaying) return;
+        if (!lastT) lastT = t;
+        const delta = (t - lastT) / 1000;
+        let nextY = curY + speeds[spIdx].v * delta;
+        
+        if (curY < 0 && nextY >= 0) { nextY = 1.0; }
+
+        curY = nextY;
+        if (curY >= maxY) { curY = maxY; isPlaying = false; refresh(); return; }
+        refresh();
+        lastT = t;
+        animFrame = requestAnimationFrame(run);
+    }
+
+    function startPointDrag(e) {
+        e.preventDefault();
+        const onMouseMove = (me) => {
+            const rect = document.getElementById('progCont').getBoundingClientRect();
+            let p = (me.clientX - rect.left) / rect.width;
+            p = Math.max(0, Math.min(1, p));
+            curY = minY + (maxY - minY) * p;
+            refresh();
+        };
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function togglePanel(panelId, btnId) {
+        const p = document.getElementById(panelId);
+        const isOn = p.style.display === 'block';
+        closeAllPanels();
+        if (!isOn) { p.style.display = 'block'; document.getElementById(btnId).classList.add('active'); }
+    }
+
+    function closeAllPanels() {
+        document.querySelectorAll('.floating-panel').forEach(p => p.style.display = 'none');
+        document.querySelectorAll('.side-btn').forEach(b => b.classList.remove('active'));
+    }
+
+    function adjSpeed(dir) { 
+        spIdx = Math.max(0, Math.min(speeds.length-1, spIdx + dir)); 
+        document.getElementById('spTxt').innerText = speeds[spIdx].t; 
+    }
+    
+    document.getElementById('progCont').onclick = function(e) {
+        if (e.target.id === 'progHandle') return;
+        const rect = this.getBoundingClientRect();
+        let p = (e.clientX - rect.left) / rect.width;
+        curY = minY + (maxY - minY) * Math.max(0, Math.min(1, p));
+        refresh();
+    };
+
+    function initList() {
+        const container = document.getElementById('eventList');
+        if (!container || locations.length === 0) return;
+        [...locations].sort((a,b) => a.startYear - b.startYear).forEach(loc => {
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            item.innerHTML = `<div><b>${loc.name}</b><br><small>${loc.period}</small></div>`;
+            item.onclick = () => { 
+                curY = loc.startYear; 
+                refresh(); 
+                map.flyTo(getInterpolatedPos(loc, curY), 10); 
+                if(window.innerWidth < 768) closeAllPanels();
+            };
+            container.appendChild(item);
+        });
+    }
+
+    window.onload = () => { initList(); refresh(); };
 </script>
 </body>
 </html>
