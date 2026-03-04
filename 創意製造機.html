@@ -16,17 +16,18 @@
     .float { animation: float 3s ease-in-out infinite; }
     .glow { animation: glow 2s ease-in-out infinite; }
     .fortune-card { background: linear-gradient(135deg, #fff5ff 0%, #ffe5f7 100%); border: 3px dashed #ffb6d9; border-radius: 20px; }
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
   </style>
  </head>
  <body class="h-full overflow-auto bg-gradient-to-br from-pink-100 via-purple-100 to-rose-100">
+  
+  <div id="lightbox" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onclick="closeLightbox()">
+      <img id="lightbox-img" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" src="">
+      <button class="absolute top-4 right-4 text-white text-4xl font-bold">&times;</button>
+  </div>
+
   <div id="app" class="min-h-full w-full p-4 md:p-8 flex flex-col items-center">
    
-   <h1 id="main-title" class="text-5xl md:text-7xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 mb-8 float">✨ 創意製造機 ✨</h1>
+   <h1 class="text-5xl md:text-7xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 mb-8 float">✨ 創意製造機 ✨</h1>
 
    <div class="max-w-2xl w-full bg-gradient-to-b from-pink-300 via-purple-300 to-rose-300 rounded-3xl p-8 shadow-2xl border-4 border-pink-400 glow">
     <div class="flex justify-center gap-4 mb-6 text-5xl">
@@ -66,12 +67,12 @@
         <div>
             <label class="block text-sm font-bold text-pink-600 mb-1">🎴 小卡片圖片 (需 < 1MB)</label>
             <input type="file" id="card-image-input" accept="image/*" onchange="handleImageUpload(event, 'card-preview')" class="w-full text-sm">
-            <div id="card-preview" class="mt-2 h-32 bg-white/50 rounded flex items-center justify-center text-gray-400 border border-pink-200 overflow-hidden">預覽小卡</div>
+            <div id="card-preview" class="mt-2 h-64 bg-white/50 rounded flex items-center justify-center text-gray-400 border border-pink-200 overflow-hidden cursor-pointer hover:bg-white/70" onclick="openPreviewInLightbox('card-preview')">預覽小卡</div>
         </div>
         <div>
             <label class="block text-sm font-bold text-purple-600 mb-1">🖼️ 展示圖片 (需 < 1MB)</label>
             <input type="file" id="display-image-input" accept="image/*" onchange="handleImageUpload(event, 'display-preview')" class="w-full text-sm">
-            <div id="display-preview" class="mt-2 h-32 bg-white/50 rounded flex items-center justify-center text-gray-400 border border-purple-200 overflow-hidden">預覽圖片</div>
+            <div id="display-preview" class="mt-2 h-32 bg-white/50 rounded flex items-center justify-center text-gray-400 border border-purple-200 overflow-hidden cursor-pointer hover:bg-white/70" onclick="openPreviewInLightbox('display-preview')">預覽圖片</div>
         </div>
         <input type="text" id="creator-name-input" placeholder="你的名字" class="w-full p-2 border border-pink-300 rounded-lg">
         <input type="text" id="creator-url-input" placeholder="個人網址或 IG/Threads" class="w-full p-2 border border-pink-300 rounded-lg">
@@ -88,30 +89,58 @@
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwj-CrHFLjzz1v-QNwtCrr5LwgoOV223ATZQdx3NrtJOcyY3xsAZuCiwiTNQho5Io39/exec'; // <--- 網址記得填寫
-
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwj-CrHFLjzz1v-QNwtCrr5LwgoOV223ATZQdx3NrtJOcyY3xsAZuCiwiTNQho5Io39/exec';
     const characters = [{emoji:'🐱'},{emoji:'🐶'},{emoji:'🐰'},{emoji:'🐼'},{emoji:'🦊'},{emoji:'🦄'},{emoji:'🤖'},{emoji:'🧚'},{emoji:'🐲'},{emoji:'🧜'}];
     const items = [{emoji:'🍎'},{emoji:'🍓'},{emoji:'🍰'},{emoji:'🌈'},{emoji:'⭐'},{emoji:'🎀'},{emoji:'💎'},{emoji:'🌙'},{emoji:'🌻'},{emoji:'🍭'}];
     const fortunes = [{name:'大吉', detail:'運勢絕佳，夢想即將實現！'},{name:'吉', detail:'好運連連，把握機會開創新局面。'},{name:'中吉', detail:'平穩順心，適合安靜思考新計劃。'},{name:'小吉', detail:'小驚喜不斷，保持心情愉快。'},{name:'超吉', detail:'你是天選之人！幸運之神正看著你。'}];
 
     let currentChar = '🐱', currentItem = '🍎', isSpinning = false;
 
-    // --- 新增：圖片大小檢查邏輯 ---
+    // --- 燈箱功能 ---
+    function openLightbox(imgSrc) {
+        if(!imgSrc) return;
+        const modal = document.getElementById('lightbox');
+        const modalImg = document.getElementById('lightbox-img');
+        modalImg.src = imgSrc;
+        modal.classList.remove('hidden');
+    }
+    function closeLightbox() { document.getElementById('lightbox').classList.add('hidden'); }
+    
+    // 預覽區點擊觸發燈箱
+    function openPreviewInLightbox(id) {
+        const preview = document.getElementById(id);
+        const img = preview.querySelector('img');
+        if(img) openLightbox(img.src);
+    }
+
+    function downloadFortune() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 709; canvas.height = 354;
+      const grd = ctx.createLinearGradient(0, 0, canvas.width, 0);
+      grd.addColorStop(0, '#fff5ff'); grd.addColorStop(1, '#ffd9f0');
+      ctx.fillStyle = grd; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#ffb6d9'; ctx.lineWidth = 10; ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const centerY = 120;
+      ctx.font = '100px serif'; ctx.fillText(currentChar, canvas.width * 0.25, centerY);
+      ctx.font = '50px serif'; ctx.fillText('💗', canvas.width * 0.5, centerY);
+      ctx.font = '100px serif'; ctx.fillText(currentItem, canvas.width * 0.75, centerY);
+      ctx.fillStyle = '#be185d'; ctx.font = 'bold 28px "Fredoka", sans-serif'; ctx.fillText('✨ 今天的運勢 ✨', canvas.width / 2, 210);
+      const fortuneName = document.getElementById('fortune-text').textContent;
+      ctx.fillStyle = '#ec4899'; ctx.font = 'bold 60px "Fredoka", sans-serif'; ctx.fillText(fortuneName, canvas.width / 2, 270);
+      ctx.textAlign = 'right'; ctx.fillStyle = '#db2777'; ctx.font = '16px sans-serif'; ctx.fillText(`📅 ${new Date().toLocaleDateString()}`, canvas.width - 40, canvas.height - 40);
+      const link = document.createElement('a'); link.download = `fortune-${Date.now()}.png`; link.href = canvas.toDataURL('image/png'); link.click();
+    }
+
     function handleImageUpload(event, previewId) {
       const file = event.target.files[0];
-      const MAX_SIZE = 1 * 1024 * 1024; // 1MB
-
+      const MAX_SIZE = 1 * 1024 * 1024; 
       if (!file) return;
-
-      // 檢查檔案大小
       if (file.size > MAX_SIZE) {
-        alert(`❌ 檔案太大了 (${(file.size/1024/1024).toFixed(2)}MB)！\n請選擇小於 1MB 的圖片，否則無法上傳至雲端。`);
-        event.target.value = ''; // 清空選擇
-        document.getElementById(previewId).innerHTML = '預覽圖片';
-        delete document.getElementById(previewId).dataset.image;
-        return;
+        alert(`❌ 檔案太大了 (${(file.size/1024/1024).toFixed(2)}MB)！`);
+        event.target.value = ''; return;
       }
-
       const reader = new FileReader();
       reader.onload = (e) => {
         const preview = document.getElementById(previewId);
@@ -121,72 +150,10 @@
       reader.readAsDataURL(file);
     }
 
-    // --- 下載功能 (Canvas) ---
-    function downloadFortune() {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  
-  // 設定畫布尺寸: 6cm x 3cm at 300 DPI
-  // 6cm 約 709 px, 3cm 約 354 px
-  canvas.width = 709;
-  canvas.height = 354;
-  
-  // 1. 背景漸變 (改為橫向漸變)
-  const grd = ctx.createLinearGradient(0, 0, canvas.width, 0);
-  grd.addColorStop(0, '#fff5ff');
-  grd.addColorStop(1, '#ffd9f0');
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  // 2. 裝飾邊框
-  ctx.strokeStyle = '#ffb6d9';
-  ctx.lineWidth = 10;
-  ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
-  
-  // 3. 繪製元素 - 水平排列
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  
-  // 繪製主角們 (放在上半部)
-  const centerY = 120;
-  ctx.font = '100px serif';
-  ctx.fillText(currentChar, canvas.width * 0.25, centerY); // 左側人物
-  
-  ctx.font = '50px serif';
-  ctx.fillText('💗', canvas.width * 0.5, centerY);        // 中間愛心
-  
-  ctx.font = '100px serif';
-  ctx.fillText(currentItem, canvas.width * 0.75, centerY); // 右側物品
-  
-  // 4. 繪製運勢文字 (放在下半部)
-  ctx.fillStyle = '#be185d';
-  ctx.font = 'bold 28px "Fredoka", sans-serif';
-  ctx.fillText('✨ 今天的運勢 ✨', canvas.width / 2, 210);
-  
-  const fortuneName = document.getElementById('fortune-text').textContent;
-  ctx.fillStyle = '#ec4899';
-  ctx.font = 'bold 60px "Fredoka", sans-serif';
-  ctx.fillText(fortuneName, canvas.width / 2, 270);
-  
-  // 5. 底部日期 (右下角)
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#db2777';
-  ctx.font = '16px sans-serif';
-  ctx.fillText(`📅 ${new Date().toLocaleDateString()}`, canvas.width - 40, canvas.height - 40);
-
-  // 執行下載
-  const link = document.createElement('a');
-  link.download = `fortune-horizontal-${Date.now()}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-}
-
-    // --- 其他邏輯 ---
     function spin() {
       if (isSpinning) return;
       isSpinning = true;
-      const btn = document.getElementById('spin-btn');
-      btn.disabled = true;
+      const btn = document.getElementById('spin-btn'); btn.disabled = true;
       let count = 0;
       const timer = setInterval(() => {
         document.getElementById('slot1').textContent = characters[Math.floor(Math.random()*characters.length)].emoji;
@@ -207,71 +174,31 @@
     }
 
     async function fetchGallery() {
-    const galleryGrid = document.getElementById('gallery-grid');
-    
-    // 1. 顯示載入中的狀態
-    galleryGrid.innerHTML = `
-        <div class="col-span-full text-center py-10 text-pink-500 animate-pulse">
-            ✨ 正在從雲端載入作品中...
-        </div>
-    `;
-
-    if (!SCRIPT_URL.startsWith('http')) {
-        galleryGrid.innerHTML = '<p class="col-span-full text-center text-red-400">⚠️ 設定錯誤：請填寫正確的 SCRIPT_URL</p>';
-        return;
-    }
-
-    try {
-        const res = await fetch(SCRIPT_URL);
-        const data = await res.json();
-        console.log("從雲端收到的資料：", data); // <--- 加入這一行來檢查資料內容
-
-        // 2. 判斷是否有資料
-        if (!data || data.length === 0) {
-            galleryGrid.innerHTML = `
-                <div class="col-span-full text-center p-8 border-2 border-dashed border-pink-200 rounded-2xl">
-                    <p class="text-pink-400 font-bold">目前還沒有人投稿喔！</p>
-                    <p class="text-sm text-purple-400">快成為第一個分享今天運勢的人吧！✨</p>
+        const galleryGrid = document.getElementById('gallery-grid');
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            if (!data || data.length === 0) return;
+            galleryGrid.innerHTML = data.reverse().map(sub => `
+                <div class="fortune-card p-4 shadow-lg bg-white/80 rounded-2xl relative">
+                    <div class="relative w-full h-64 bg-gray-200 rounded-lg mb-4 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${sub.display_image || ''}')">
+                        <img src="${sub.display_image || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" class="w-full h-full object-cover">
+                        <div class="hidden text-gray-400 font-bold">無圖片</div>
+                    </div>
+                    <div class="flex justify-center -mt-10">
+                        <div class="relative w-20 h-20 bg-gray-300 border-4 border-white rounded-lg shadow-md flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90" onclick="openLightbox('${sub.card_image || ''}')">
+                            <img src="${sub.card_image || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" class="w-full h-full object-cover">
+                            <div class="hidden text-xs text-white">無圖</div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <p class="font-bold text-pink-600">${sub.creator_name || '匿名'}</p>
+                        <a href="${sub.creator_url || '#'}" target="_blank" class="text-xs text-purple-400 underline break-all">${sub.creator_url ? '查看來源' : '無網址'}</a>
+                    </div>
                 </div>
-            `;
-            return;
-        }
-
-        // 3. 成功顯示資料
-document.getElementById('gallery-grid').innerHTML = data.reverse().map(sub => `
-    <div class="fortune-card p-4 shadow-lg bg-white/80 rounded-2xl relative">
-        
-        <div class="relative w-full h-40 bg-gray-200 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-            <img src="${sub.display_image || ''}" 
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
-                 class="w-full h-full object-cover">
-            
-            <div class="hidden text-gray-400 font-bold">無圖片</div>
-        </div>
-             
-        <div class="flex justify-center -mt-10">
-            <div class="relative w-20 h-20 bg-gray-300 border-4 border-white rounded-lg shadow-md flex items-center justify-center overflow-hidden">
-                <img src="${sub.card_image || ''}" 
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
-                     class="w-full h-full object-cover">
-                <div class="hidden text-xs text-white">無圖</div>
-            </div>
-        </div>
-
-        <div class="text-center mt-3">
-            <p class="font-bold text-pink-600">${sub.creator_name || '匿名'}</p>
-            <a href="${sub.creator_url || '#'}" target="_blank" class="text-xs text-purple-400 underline break-all">
-                ${sub.creator_url ? '查看來源' : '無網址'}
-            </a>
-        </div>
-    </div>
-`).join('');
-    } 
-catch (e) {
-        console.error(e);
-        galleryGrid.innerHTML = '<p class="col-span-full text-center text-red-500">⚠️ 讀取失敗，請確認網路連線或 Apps Script 權限設定。</p>';
+            `).join('');
+        } catch (e) {}
     }
-}
 
     async function submitFortune() {
       const cardImg = document.getElementById('card-preview').dataset.image;
@@ -279,18 +206,10 @@ catch (e) {
       const name = document.getElementById('creator-name-input').value.trim();
       const url = document.getElementById('creator-url-input').value.trim();
       const status = document.getElementById('submit-status');
-
-      if (!cardImg || !displayImg || !name || !url) {
-        status.textContent = '❌ 請填寫完整資料並上傳圖片';
-        return;
-      }
-
+      if (!cardImg || !displayImg || !name || !url) { status.textContent = '❌ 請填寫完整資料'; return; }
       status.textContent = '⏳ 正在寫入雲端...';
       try {
-        await fetch(SCRIPT_URL, {
-          method: 'POST', mode: 'no-cors',
-          body: JSON.stringify({ id: Date.now().toString(), card_image: cardImg, display_image: displayImg, creator_name: name, creator_url: url, created_at: new Date().toLocaleString() })
-        });
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: Date.now().toString(), card_image: cardImg, display_image: displayImg, creator_name: name, creator_url: url, created_at: new Date().toLocaleString() }) });
         status.textContent = '✨ 投稿成功！';
         setTimeout(() => location.reload(), 2000);
       } catch (e) { status.textContent = '❌ 提交出錯'; }
