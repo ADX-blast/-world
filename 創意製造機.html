@@ -1,38 +1,43 @@
 <!doctype html>
 <html lang="zh-TW" class="h-full">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>創意製造機</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&amp;display=swap" rel="stylesheet">
-  <style>
-    * { font-family: 'Fredoka', 'Comic Sans MS', cursive, sans-serif; }
-    @keyframes sparkle { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: 0.6; transform: scale(1.3) rotate(180deg); } }
-    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
-    @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); } 50% { box-shadow: 0 0 40px rgba(236, 72, 153, 0.6); } }
-    .slot-window { background: linear-gradient(135deg, #fff5ff 0%, #ffe5f7 100%); border: 3px solid #ffb6d9; }
-    .sparkle { animation: sparkle 2s ease-in-out infinite; }
-    .float { animation: float 3s ease-in-out infinite; }
-    .glow { animation: glow 2s ease-in-out infinite; }
-    .fortune-card { background: linear-gradient(135deg, #fff5ff 0%, #ffe5f7 100%); border: 3px dashed #ffb6d9; border-radius: 20px; }
-  </style>
- </head>
- <body class="h-full overflow-auto bg-gradient-to-br from-pink-100 via-purple-100 to-rose-100">
-  
-  <div id="lightbox" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onclick="closeLightbox()">
-      <img id="lightbox-img" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" src="">
-      <button class="absolute top-4 right-4 text-white text-4xl font-bold">&times;</button>
-  </div>
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>創意製造機</title>
+ <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+ <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+ <style>
+   * { font-family: 'Zen Maru Gothic', sans-serif; }
+   @keyframes sparkle { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: 0.6; transform: scale(1.3) rotate(180deg); } }
+   @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
+   @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); } 50% { box-shadow: 0 0 40px rgba(236, 72, 153, 0.6); } }
+   .slot-window { background: linear-gradient(135deg, #fff5ff 0%, #ffe5f7 100%); border: 3px solid #ffb6d9; }
+   .sparkle { animation: sparkle 2s ease-in-out infinite; }
+   .float { animation: float 3s ease-in-out infinite; }
+   .glow { animation: glow 2s ease-in-out infinite; }
+   .fortune-card { background: linear-gradient(135deg, #fff5ff 0%, #ffe5f7 100%); border: 3px dashed #ffb6d9; border-radius: 20px; }
+   .cat-btn { transition: all 0.2s; }
+   .cat-btn.active { background: #ec4899 !important; color: white !important; border-color: #db2777 !important; }
+ </style>
+</head>
+<body class="h-full overflow-auto bg-gradient-to-br from-pink-100 via-purple-100 to-rose-100">
+ 
+ <div id="lightbox" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onclick="closeLightbox()">
+     <img id="lightbox-img" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" src="">
+     <button class="absolute top-4 right-4 text-white text-4xl font-bold">&times;</button>
+ </div>
 
-  <div id="app" class="min-h-full w-full p-4 md:p-8 flex flex-col items-center">
-   
-   <h1 class="text-5xl md:text-7xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 mb-8 float">✨ 創意製造機 ✨</h1>
+ <div id="app" class="min-h-full w-full p-4 md:p-8 flex flex-col items-center">
+  
+   <h1 class="text-4xl md:text-6xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 mb-8 float">✨ 創意製造機 ✨</h1>
 
    <div class="max-w-2xl w-full bg-gradient-to-b from-pink-300 via-purple-300 to-rose-300 rounded-3xl p-8 shadow-2xl border-4 border-pink-400 glow">
     <div class="flex justify-center gap-4 mb-6 text-5xl">
      <span class="sparkle">💕</span> <span class="sparkle" style="animation-delay: 0.4s">✨</span> <span class="sparkle" style="animation-delay: 0.8s">💖</span>
     </div>
+    
+    <div id="category-container" class="grid grid-cols-3 md:grid-cols-5 gap-2 mb-8"></div>
+
     <div class="flex justify-center gap-6 mb-8">
      <div class="slot-window w-32 h-32 md:w-48 md:h-48 rounded-3xl overflow-hidden flex items-center justify-center border-4 border-pink-300">
       <div id="slot1" class="text-7xl md:text-8xl">🐱</div>
@@ -62,15 +67,14 @@
    <div id="submit-panel" class="hidden mt-8 max-w-2xl w-full">
     <div class="fortune-card p-6 shadow-2xl">
      <h3 class="text-2xl font-bold text-center text-pink-500 mb-4">分享你的運勢卡</h3>
-     <p class="text-xs text-center text-rose-500 mb-4">⚠️ 為了雲端存儲順暢，圖片大小需小於 1MB</p>
      <div class="space-y-4">
         <div>
-            <label class="block text-sm font-bold text-pink-600 mb-1">🎴 小卡片圖片 (需 < 1MB)</label>
+            <label class="block text-sm font-bold text-pink-600 mb-1">🎴 小卡片圖片</label>
             <input type="file" id="card-image-input" accept="image/*" onchange="handleImageUpload(event, 'card-preview')" class="w-full text-sm">
             <div id="card-preview" class="mt-2 h-64 bg-white/50 rounded flex items-center justify-center text-gray-400 border border-pink-200 overflow-hidden cursor-pointer hover:bg-white/70" onclick="openPreviewInLightbox('card-preview')">預覽小卡</div>
         </div>
         <div>
-            <label class="block text-sm font-bold text-purple-600 mb-1">🖼️ 展示圖片 (需 < 1MB)</label>
+            <label class="block text-sm font-bold text-purple-600 mb-1">🖼️ 展示圖片</label>
             <input type="file" id="display-image-input" accept="image/*" onchange="handleImageUpload(event, 'display-preview')" class="w-full text-sm">
             <div id="display-preview" class="mt-2 h-32 bg-white/50 rounded flex items-center justify-center text-gray-400 border border-purple-200 overflow-hidden cursor-pointer hover:bg-white/70" onclick="openPreviewInLightbox('display-preview')">預覽圖片</div>
         </div>
@@ -86,137 +90,182 @@
     <h2 class="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 mb-8">✨ 投稿展示牆 ✨</h2>
     <div id="gallery-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
    </div>
-  </div>
+ </div>
 
-  <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwj-CrHFLjzz1v-QNwtCrr5LwgoOV223ATZQdx3NrtJOcyY3xsAZuCiwiTNQho5Io39/exec';
-    const characters = [{emoji:'🐱'},{emoji:'🐶'},{emoji:'🐰'},{emoji:'🐼'},{emoji:'🦊'},{emoji:'🦄'},{emoji:'🤖'},{emoji:'🧚'},{emoji:'🐲'},{emoji:'🧜'}];
-    const items = [{emoji:'🍎'},{emoji:'🍓'},{emoji:'🍰'},{emoji:'🌈'},{emoji:'⭐'},{emoji:'🎀'},{emoji:'💎'},{emoji:'🌙'},{emoji:'🌻'},{emoji:'🍭'}];
-    const fortunes = [{name:'大吉', detail:'運勢絕佳，夢想即將實現！'},{name:'吉', detail:'好運連連，把握機會開創新局面。'},{name:'中吉', detail:'平穩順心，適合安靜思考新計劃。'},{name:'小吉', detail:'小驚喜不斷，保持心情愉快。'},{name:'超吉', detail:'你是天選之人！幸運之神正看著你。'}];
+ <script>
+   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwj-CrHFLjzz1v-QNwtCrr5LwgoOV223ATZQdx3NrtJOcyY3xsAZuCiwiTNQho5Io39/exec';
+   const characters = [{emoji:'🐱'},{emoji:'🐶'},{emoji:'🐰'},{emoji:'🐼'},{emoji:'🦊'},{emoji:'🦄'},{emoji:'🤖'},{emoji:'🧚'},{emoji:'🐲'},{emoji:'🧜'}];
+   const items = [{emoji:'🍎'},{emoji:'🍓'},{emoji:'🍰'},{emoji:'🌈'},{emoji:'⭐'},{emoji:'🎀'},{emoji:'💎'},{emoji:'🌙'},{emoji:'🌻'},{emoji:'🍭'}];
+   const categories = ['戀愛運', '事業運', '財運', '學業運', '健康運', '人際運', '旅行運', '投資運', '購物運', '創意運', '心情運', '轉職運', '家庭運', '友情運', '幸運日'];
+   
+   const fortunes = [
+     {name:'宇宙大吉', detail:'運勢如虹！今天做任何決定都是正確的，大膽前進吧！'},
+     {name:'超級幸運', detail:'會有意外的驚喜發生，請隨時準備好迎接好運氣！'},
+     {name:'桃花朵朵', detail:'你的魅力指數爆表，適合主動與人互動，會有好事發生。'},
+     {name:'財運亨通', detail:'會有小額的偏財運出現，或是撿到便宜的好東西喔！'},
+     {name:'心情綻放', detail:'壓力煙消雲散，今天適合安排一場放鬆的小旅行。'},
+     {name:'靈感爆發', detail:'腦袋裡全是好點子，這絕對是完成創意專案的絕佳時機！'},
+     {name:'貴人相助', detail:'遇到困難別擔心，轉角就會遇到幫你一把的好心人。'},
+     {name:'平穩順心', detail:'雖然沒有大風大浪，但這種簡單的幸福最珍貴，好好享受吧。'},
+     {name:'夢想成真', detail:'堅持下去，那個你心心念念的目標，正準備給你回應！'},
+     {name:'活力滿滿', detail:'今天的你精力充沛，連路邊的小貓都想對你喵喵叫喔！'},
+     {name:'意外驚喜', detail:'會有意想不到的快樂轉機，請保持開朗的心情迎接！'},
+     {name:'耕耘收穫', detail:'努力已久的事情，現在是享受成果的時候了，給自己一個擁抱！'},
+     {name:'人見人愛', detail:'你今天散發著獨特的光芒，走到哪裡都受歡迎！'},
+     {name:'時來運轉', detail:'過去的烏雲散去，晴空萬里，展現自我吧！'},
+     {name:'小確幸', detail:'注意觀察身邊的小事物，也許會發現讓你會心一笑的亮點。'}
+   ];
 
-    let currentChar = '🐱', currentItem = '🍎', isSpinning = false;
+   let currentChar = '🐱', currentItem = '🍎', isSpinning = false;
+   let currentSelectedCategory = '戀愛運';
 
-    // --- 燈箱功能 ---
-    function openLightbox(imgSrc) {
-        if(!imgSrc) return;
-        const modal = document.getElementById('lightbox');
-        const modalImg = document.getElementById('lightbox-img');
-        modalImg.src = imgSrc;
-        modal.classList.remove('hidden');
-    }
-    function closeLightbox() { document.getElementById('lightbox').classList.add('hidden'); }
-    
-    // 預覽區點擊觸發燈箱
-    function openPreviewInLightbox(id) {
-        const preview = document.getElementById(id);
-        const img = preview.querySelector('img');
-        if(img) openLightbox(img.src);
-    }
+   const container = document.getElementById('category-container');
+   categories.forEach(cat => {
+       const btn = document.createElement('button');
+       btn.textContent = cat;
+       btn.className = `cat-btn px-3 py-2 text-sm font-bold bg-white/80 border-2 border-pink-200 text-pink-600 rounded-xl hover:bg-pink-100`;
+       if (cat === currentSelectedCategory) btn.classList.add('active');
+       btn.onclick = () => {
+           document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+           btn.classList.add('active');
+           currentSelectedCategory = cat;
+       };
+       container.appendChild(btn);
+   });
 
-    function downloadFortune() {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = 709; canvas.height = 354;
-      const grd = ctx.createLinearGradient(0, 0, canvas.width, 0);
-      grd.addColorStop(0, '#fff5ff'); grd.addColorStop(1, '#ffd9f0');
-      ctx.fillStyle = grd; ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = '#ffb6d9'; ctx.lineWidth = 10; ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      const centerY = 120;
-      ctx.font = '100px serif'; ctx.fillText(currentChar, canvas.width * 0.25, centerY);
-      ctx.font = '50px serif'; ctx.fillText('💗', canvas.width * 0.5, centerY);
-      ctx.font = '100px serif'; ctx.fillText(currentItem, canvas.width * 0.75, centerY);
-      ctx.fillStyle = '#be185d'; ctx.font = 'bold 28px "Fredoka", sans-serif'; ctx.fillText('✨ 今天的運勢 ✨', canvas.width / 2, 210);
-      const fortuneName = document.getElementById('fortune-text').textContent;
-      ctx.fillStyle = '#ec4899'; ctx.font = 'bold 60px "Fredoka", sans-serif'; ctx.fillText(fortuneName, canvas.width / 2, 270);
-      ctx.textAlign = 'right'; ctx.fillStyle = '#db2777'; ctx.font = '16px sans-serif'; ctx.fillText(`📅 ${new Date().toLocaleDateString()}`, canvas.width - 40, canvas.height - 40);
-      const link = document.createElement('a'); link.download = `fortune-${Date.now()}.png`; link.href = canvas.toDataURL('image/png'); link.click();
-    }
+   function openLightbox(imgSrc) {
+       if(!imgSrc) return;
+       const modal = document.getElementById('lightbox');
+       const modalImg = document.getElementById('lightbox-img');
+       modalImg.src = imgSrc;
+       modal.classList.remove('hidden');
+   }
+   function closeLightbox() { document.getElementById('lightbox').classList.add('hidden'); }
+   function openPreviewInLightbox(id) {
+       const preview = document.getElementById(id);
+       const img = preview.querySelector('img');
+       if(img) openLightbox(img.src);
+   }
 
-    function handleImageUpload(event, previewId) {
-      const file = event.target.files[0];
-      const MAX_SIZE = 1 * 1024 * 1024; 
-      if (!file) return;
-      if (file.size > MAX_SIZE) {
-        alert(`❌ 檔案太大了 (${(file.size/1024/1024).toFixed(2)}MB)！`);
-        event.target.value = ''; return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const preview = document.getElementById(previewId);
-        preview.innerHTML = `<img src="${e.target.result}" class="h-full w-full object-cover">`;
-        preview.dataset.image = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
+   function downloadFortune() {
+     const canvas = document.createElement('canvas');
+     const ctx = canvas.getContext('2d');
+     const fortuneName = document.getElementById('fortune-text').textContent;
+     
+     canvas.width = 709; canvas.height = 354;
+     const grd = ctx.createLinearGradient(0, 0, canvas.width, 0);
+     grd.addColorStop(0, '#fff5ff'); grd.addColorStop(1, '#ffd9f0');
+     ctx.fillStyle = grd; ctx.fillRect(0, 0, canvas.width, canvas.height);
+     ctx.strokeStyle = '#ffb6d9'; ctx.lineWidth = 10; ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
+     
+     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+     const centerY = 100;
+     ctx.font = '80px serif'; ctx.fillText(currentChar, canvas.width * 0.25, centerY);
+     ctx.font = '40px serif'; ctx.fillText('💗', canvas.width * 0.5, centerY);
+     ctx.font = '80px serif'; ctx.fillText(currentItem, canvas.width * 0.75, centerY);
+     
+     ctx.fillStyle = '#be185d'; 
+     ctx.font = 'bold 30px "Zen Maru Gothic", sans-serif'; 
+     ctx.fillText(`【${currentSelectedCategory}】`, canvas.width / 2, 190);
+     
+     ctx.fillStyle = '#ec4899'; 
+     ctx.font = 'bold 50px "Zen Maru Gothic", sans-serif'; 
+     ctx.fillText(fortuneName, canvas.width / 2, 260);
+     
+     ctx.textAlign = 'right'; ctx.fillStyle = '#db2777'; ctx.font = '16px sans-serif'; ctx.fillText(`📅 ${new Date().toLocaleDateString()}`, canvas.width - 40, canvas.height - 40);
+     const link = document.createElement('a'); link.download = `fortune-${Date.now()}.png`; link.href = canvas.toDataURL('image/png'); link.click();
+   }
 
-    function spin() {
-      if (isSpinning) return;
-      isSpinning = true;
-      const btn = document.getElementById('spin-btn'); btn.disabled = true;
-      let count = 0;
-      const timer = setInterval(() => {
-        document.getElementById('slot1').textContent = characters[Math.floor(Math.random()*characters.length)].emoji;
-        document.getElementById('slot2').textContent = items[Math.floor(Math.random()*items.length)].emoji;
-        if(++count > 15) {
-            clearInterval(timer);
-            currentChar = characters[Math.floor(Math.random()*characters.length)].emoji;
-            currentItem = items[Math.floor(Math.random()*items.length)].emoji;
-            document.getElementById('slot1').textContent = currentChar;
-            document.getElementById('slot2').textContent = currentItem;
-            const f = fortunes[Math.floor(Math.random()*fortunes.length)];
-            document.getElementById('fortune-text').textContent = f.name;
-            document.getElementById('fortune-detail').textContent = f.detail;
-            document.getElementById('fortune-section').classList.remove('hidden');
-            isSpinning = false; btn.disabled = false;
-        }
-      }, 100);
-    }
+   function handleImageUpload(event, previewId) {
+     const file = event.target.files[0];
+     const MAX_SIZE = 1 * 1024 * 1024; 
+     if (!file) return;
+     if (file.size > MAX_SIZE) {
+       alert(`❌ 檔案太大了 (${(file.size/1024/1024).toFixed(2)}MB)！`);
+       event.target.value = ''; return;
+     }
+     const reader = new FileReader();
+     reader.onload = (e) => {
+       const preview = document.getElementById(previewId);
+       preview.innerHTML = `<img src="${e.target.result}" class="h-full w-full object-cover">`;
+       preview.dataset.image = e.target.result;
+     };
+     reader.readAsDataURL(file);
+   }
 
-    async function fetchGallery() {
-        const galleryGrid = document.getElementById('gallery-grid');
-        try {
-            const res = await fetch(SCRIPT_URL);
-            const data = await res.json();
-            if (!data || data.length === 0) return;
-            galleryGrid.innerHTML = data.reverse().map(sub => `
-                <div class="fortune-card p-4 shadow-lg bg-white/80 rounded-2xl relative">
-                    <div class="relative w-full h-64 bg-gray-200 rounded-lg mb-4 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${sub.display_image || ''}')">
-                        <img src="${sub.display_image || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" class="w-full h-full object-cover">
-                        <div class="hidden text-gray-400 font-bold">無圖片</div>
-                    </div>
-                    <div class="flex justify-center -mt-10">
-                        <div class="relative w-20 h-20 bg-gray-300 border-4 border-white rounded-lg shadow-md flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90" onclick="openLightbox('${sub.card_image || ''}')">
-                            <img src="${sub.card_image || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" class="w-full h-full object-cover">
-                            <div class="hidden text-xs text-white">無圖</div>
-                        </div>
-                    </div>
-                    <div class="text-center mt-3">
-                        <p class="font-bold text-pink-600">${sub.creator_name || '匿名'}</p>
-                        <a href="${sub.creator_url || '#'}" target="_blank" class="text-xs text-purple-400 underline break-all">${sub.creator_url ? '查看來源' : '無網址'}</a>
-                    </div>
-                </div>
-            `).join('');
-        } catch (e) {}
-    }
+   function spin() {
+     if (isSpinning) return;
+     isSpinning = true;
+     const btn = document.getElementById('spin-btn'); btn.disabled = true;
+     let count = 0;
+     const timer = setInterval(() => {
+       document.getElementById('slot1').textContent = characters[Math.floor(Math.random()*characters.length)].emoji;
+       document.getElementById('slot2').textContent = items[Math.floor(Math.random()*items.length)].emoji;
+       if(++count > 15) {
+           clearInterval(timer);
+           currentChar = characters[Math.floor(Math.random()*characters.length)].emoji;
+           currentItem = items[Math.floor(Math.random()*items.length)].emoji;
+           document.getElementById('slot1').textContent = currentChar;
+           document.getElementById('slot2').textContent = currentItem;
+           const f = fortunes[Math.floor(Math.random()*fortunes.length)];
+           document.getElementById('fortune-text').textContent = f.name;
+           document.getElementById('fortune-detail').textContent = f.detail;
+           document.getElementById('fortune-section').classList.remove('hidden');
+           isSpinning = false; btn.disabled = false;
+       }
+     }, 100);
+   }
 
-    async function submitFortune() {
-      const cardImg = document.getElementById('card-preview').dataset.image;
-      const displayImg = document.getElementById('display-preview').dataset.image;
-      const name = document.getElementById('creator-name-input').value.trim();
-      const url = document.getElementById('creator-url-input').value.trim();
-      const status = document.getElementById('submit-status');
-      if (!cardImg || !displayImg || !name || !url) { status.textContent = '❌ 請填寫完整資料'; return; }
-      status.textContent = '⏳ 正在寫入雲端...';
-      try {
-        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: Date.now().toString(), card_image: cardImg, display_image: displayImg, creator_name: name, creator_url: url, created_at: new Date().toLocaleString() }) });
-        status.textContent = '✨ 投稿成功！';
-        setTimeout(() => location.reload(), 2000);
-      } catch (e) { status.textContent = '❌ 提交出錯'; }
-    }
+   async function fetchGallery() {
+       const galleryGrid = document.getElementById('gallery-grid');
+       galleryGrid.innerHTML = `<div class="col-span-full text-center p-8 text-pink-500 font-bold animate-pulse">⏳ 展示牆準備中...</div>`;
+       try {
+           const res = await fetch(SCRIPT_URL);
+           const data = await res.json();
+           if (!data || data.length === 0) {
+               galleryGrid.innerHTML = `<div class="col-span-full text-center p-8 text-gray-400 font-bold">目前還沒有人投稿喔～快來搶頭香！✨</div>`;
+               return;
+           }
+           galleryGrid.innerHTML = data.reverse().map(sub => `
+               <div class="fortune-card p-4 shadow-lg bg-white/80 rounded-2xl relative">
+                   <div class="relative w-full h-64 bg-gray-200 rounded-lg mb-4 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${sub.display_image || ''}')">
+                       <img src="${sub.display_image || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" class="w-full h-full object-cover">
+                       <div class="hidden text-gray-400 font-bold">無圖片</div>
+                   </div>
+                   <div class="flex justify-center -mt-16 relative z-10">
+                       <div class="relative w-48 h-28 bg-gray-300 border-4 border-white rounded-xl shadow-xl flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-all hover:scale-105" onclick="openLightbox('${sub.card_image || ''}')">
+                           <img src="${sub.card_image || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" class="w-full h-full object-cover">
+                           <div class="hidden text-xs text-white">無圖</div>
+                       </div>
+                   </div>
+                   <div class="text-center mt-4">
+                       <p class="font-bold text-pink-600">${sub.creator_name || '匿名'}</p>
+                       <a href="${sub.creator_url || '#'}" target="_blank" class="text-xs text-purple-400 underline break-all hover:text-purple-600">${sub.creator_url ? '查看來源' : '無網址'}</a>
+                   </div>
+               </div>
+           `).join('');
+       } catch (e) {
+           galleryGrid.innerHTML = `<div class="col-span-full text-center p-8 text-red-400 font-bold">❌ 哎呀，載入出錯了，請稍後再試！</div>`;
+       }
+   }
 
-    function toggleSubmitPanel() { document.getElementById('submit-panel').classList.toggle('hidden'); }
-    window.onload = fetchGallery;
-  </script>
- </body>
+   async function submitFortune() {
+     const cardImg = document.getElementById('card-preview').dataset.image;
+     const displayImg = document.getElementById('display-preview').dataset.image;
+     const name = document.getElementById('creator-name-input').value.trim();
+     const url = document.getElementById('creator-url-input').value.trim();
+     const status = document.getElementById('submit-status');
+     if (!cardImg || !displayImg || !name || !url) { status.textContent = '❌ 請填寫完整資料'; return; }
+     status.textContent = '⏳ 正在寫入雲端...';
+     try {
+       await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: Date.now().toString(), card_image: cardImg, display_image: displayImg, creator_name: name, creator_url: url, created_at: new Date().toLocaleString() }) });
+       status.textContent = '✨ 投稿成功！';
+       setTimeout(() => location.reload(), 2000);
+     } catch (e) { status.textContent = '❌ 提交出錯'; }
+   }
+
+   function toggleSubmitPanel() { document.getElementById('submit-panel').classList.toggle('hidden'); }
+   window.onload = fetchGallery;
+ </script>
+</body>
 </html>
