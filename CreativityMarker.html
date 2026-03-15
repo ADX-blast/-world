@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>✨ 創意製造機 ✨</title>
+ <title>創意製造機</title>
  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
  <style>
@@ -31,67 +31,64 @@
   
    <h1 class="text-4xl md:text-6xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 mb-8 float">✨ 創意製造機 ✨</h1>
 
-   <div class="max-w-2xl w-full bg-gradient-to-b from-pink-300 via-purple-300 to-rose-300 rounded-3xl p-8 shadow-2xl border-4 border-pink-400 glow text-center">
+   <div class="max-w-2xl w-full bg-gradient-to-b from-pink-300 via-purple-300 to-rose-300 rounded-3xl p-8 shadow-2xl border-4 border-pink-400 glow">
+    <div class="flex justify-center gap-4 mb-6 text-5xl">
+     <span class="sparkle">💕</span> <span class="sparkle" style="animation-delay: 0.4s">✨</span> <span class="sparkle" style="animation-delay: 0.8s">💖</span>
+    </div>
+    
     <div id="category-container" class="grid grid-cols-3 md:grid-cols-5 gap-2 mb-8"></div>
+
     <div class="flex justify-center gap-6 mb-8">
-     <div class="slot-window w-32 h-32 md:w-40 md:h-40 rounded-3xl flex items-center justify-center border-4 border-pink-300">
-      <div id="slot1" class="text-6xl md:text-7xl">🐱</div>
+     <div class="slot-window w-32 h-32 md:w-48 md:h-48 rounded-3xl overflow-hidden flex items-center justify-center border-4 border-pink-300">
+      <div id="slot1" class="text-7xl md:text-8xl">🐱</div>
      </div>
-     <div class="flex items-center text-4xl md:text-6xl font-bold text-pink-400">💗</div>
-     <div class="slot-window w-32 h-32 md:w-40 md:h-40 rounded-3xl flex items-center justify-center border-4 border-pink-300">
-      <div id="slot2" class="text-6xl md:text-7xl">🍎</div>
+     <div class="flex items-center text-5xl md:text-7xl font-bold text-pink-400">💗</div>
+     <div class="slot-window w-32 h-32 md:w-48 md:h-48 rounded-3xl overflow-hidden flex items-center justify-center border-4 border-pink-300">
+      <div id="slot2" class="text-7xl md:text-8xl">🍎</div>
      </div>
     </div>
-    <button id="spin-btn" onclick="spin()" class="w-full py-6 bg-gradient-to-r from-pink-400 to-rose-400 hover:scale-105 active:scale-95 text-white text-3xl font-bold rounded-3xl shadow-lg border-4 border-pink-500 transition-all"> 💖 抽出我的好運！ </button>
+    <button id="spin-btn" onclick="spin()" class="w-full py-6 bg-gradient-to-r from-pink-400 to-rose-400 hover:scale-105 active:scale-95 text-white text-3xl font-bold rounded-3xl shadow-lg border-4 border-pink-500 transition-all"> 💖 抽獎！ </button>
    </div>
 
-   <div id="fortune-section" class="hidden mt-8 max-w-2xl w-full">
+   <div id="fortune-section" class="hidden mt-6 max-w-2xl w-full">
     <div class="fortune-card p-6 shadow-2xl text-center">
-     <h2 class="text-2xl font-bold text-pink-500 mb-4 italic">—— 你的幸運小卡✨——</h2>
-     <div id="fortune-image-container" class="mb-6 bg-white/50 rounded-xl overflow-hidden shadow-inner border-2 border-pink-200 cursor-pointer" onclick="openLightbox(currentGeneratedImageUrl)"></div>
-     <div class="flex flex-wrap justify-center gap-4">
-        <button onclick="downloadFortune()" class="px-8 py-3 bg-pink-500 text-white font-bold rounded-2xl shadow-lg hover:bg-pink-600 transition-all">📥 下載卡片</button>
-        <button onclick="toggleSubmitPanel()" class="px-8 py-3 bg-purple-500 text-white font-bold rounded-2xl shadow-lg hover:bg-purple-600 transition-all">📤 前往投稿</button>
+     <h2 class="text-2xl font-bold text-pink-500 mb-4">✨ 今天的運勢 ✨</h2>
+     <div class="p-6 bg-white/50 rounded-xl mb-6">
+      <p id="fortune-text" class="text-3xl font-bold text-pink-600 mb-2"></p>
+      <p id="fortune-detail" class="text-purple-600"></p>
+     </div>
+     <div class="flex flex-wrap justify-center gap-3">
+        <button onclick="downloadFortune()" class="px-6 py-2 bg-pink-400 text-white font-bold rounded-xl shadow-md hover:bg-pink-500 transition-colors">📥 下載小卡</button>
+        <button onclick="toggleSubmitPanel()" class="px-6 py-2 bg-purple-400 text-white font-bold rounded-xl shadow-md hover:bg-purple-500 transition-colors">📤 投稿分享</button>
      </div>
     </div>
    </div>
 
    <div id="submit-panel" class="hidden mt-8 max-w-2xl w-full">
-    <div class="fortune-card p-8 shadow-2xl bg-white/95 border-2 border-pink-200">
-     <h3 class="text-2xl font-bold text-center text-pink-500 mb-8">✨ 創作者分享 ✨</h3>
-     
-     <div class="space-y-6 text-left">
-        <div class="flex flex-col gap-2">
-            <label class="font-bold text-pink-600">1. 選擇運勢小卡：</label>
-            <input type="file" id="card-image-input" accept="image/*" class="p-2 border border-gray-200 rounded-lg bg-gray-50">
+    <div class="fortune-card p-6 shadow-2xl">
+     <h3 class="text-2xl font-bold text-center text-pink-500 mb-4">分享你的運勢卡</h3>
+     <div class="space-y-4">
+        <div>
+            <label class="block text-sm font-bold text-pink-600 mb-1">🎴 小卡片圖片</label>
+            <input type="file" id="card-image-input" accept="image/*" onchange="handleImageUpload(event, 'card-preview')" class="w-full text-sm">
+            <div id="card-preview" class="mt-2 h-64 bg-white/50 rounded flex items-center justify-center text-gray-400 border border-pink-200 overflow-hidden cursor-pointer hover:bg-white/70" onclick="openPreviewInLightbox('card-preview')">預覽小卡</div>
         </div>
-
-        <div class="flex flex-col gap-2">
-            <label class="font-bold text-purple-600">2. 選擇展示圖片：</label>
-            <input type="file" id="display-image-input" accept="image/*" class="p-2 border border-gray-200 rounded-lg bg-gray-50">
+        <div>
+            <label class="block text-sm font-bold text-purple-600 mb-1">🖼️ 展示圖片</label>
+            <input type="file" id="display-image-input" accept="image/*" onchange="handleImageUpload(event, 'display-preview')" class="w-full text-sm">
+            <div id="display-preview" class="mt-2 h-32 bg-white/50 rounded flex items-center justify-center text-gray-400 border border-purple-200 overflow-hidden cursor-pointer hover:bg-white/70" onclick="openPreviewInLightbox('display-preview')">預覽圖片</div>
         </div>
-
-        <div class="flex flex-col gap-2">
-            <label class="font-bold text-gray-700">3. 您的暱稱：</label>
-            <input type="text" id="creator-name-input" placeholder="請輸入名字" class="p-3 border border-gray-200 rounded-lg outline-pink-400">
-        </div>
-
-        <div class="flex flex-col gap-2">
-            <label class="font-bold text-gray-700">4. 社交平台連結 (選填)：</label>
-            <input type="text" id="creator-url-input" placeholder="https://instagram.com/..." class="p-3 border border-gray-200 rounded-lg outline-pink-400">
-        </div>
-
-        <div class="pt-4 text-center">
-            <button id="submit-btn" onclick="submitFortune()" class="w-full py-4 bg-pink-500 text-white text-xl font-bold rounded-xl shadow-lg hover:bg-pink-600 transition-all">分享幸運✨</button>
-            <p id="submit-status" class="text-center mt-4 font-bold"></p>
-        </div>
+        <input type="text" id="creator-name-input" placeholder="你的名字" class="w-full p-2 border border-pink-300 rounded-lg">
+        <input type="text" id="creator-url-input" placeholder="個人網址或 IG/Threads" class="w-full p-2 border border-pink-300 rounded-lg">
+        <button id="submit-btn" onclick="submitFortune()" class="w-full py-3 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold rounded-xl shadow-lg">✨ 發送投稿</button>
+        <p id="submit-status" class="text-center text-sm mt-2"></p>
      </div>
     </div>
    </div>
 
-   <div class="mt-20 max-w-6xl w-full">
-    <h2 class="text-3xl md:text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-500 mb-12">💖 好運分享展示牆 💖</h2>
-    <div id="gallery-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+   <div class="mt-12 max-w-4xl w-full">
+    <h2 class="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 mb-8">✨ 投稿展示牆 ✨</h2>
+    <div id="gallery-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
    </div>
  </div>
 
@@ -102,56 +99,33 @@
    const categories = ['戀愛運', '事業運', '財運', '學業運', '健康運', '人際運', '旅行運', '投資運', '購物運', '創意運', '心情運', '轉職運', '家庭運', '友情運', '幸運日'];
    
    const fortunes = [
-     {name:'宇宙大吉', detail:'運勢如虹！今天做任何決定都是正確的，大膽前進，整個宇宙都會溫柔地推你一把！'},
-     {name:'超級幸運', detail:'會有意想不到的驚喜發生，請隨時準備好迎接好運，今天你就是這條街最亮的主角！'},
-     {name:'桃花朵朵', detail:'你的魅力指數即將爆表，適合主動與人互動，轉角可能就會遇到令你心動的驚喜。'},
-     {name:'財運亨通', detail:'會有小額的偏財運出現，或是買到超划算的寶藏好物，讓你的錢包感受到久違的重量！'},
-     {name:'心情綻放', detail:'壓力瞬間煙消雲散，今天適合安排一場放鬆的小旅行，或是買個精緻甜點犒賞辛苦的自己。'},
-     {name:'靈感爆發', detail:'腦袋裡全是閃閃發光的好點子！這絕對是完成創意專案或規劃未來的絕佳時機，快動筆吧！'},
-     {name:'貴人相助', detail:'遇到困難別擔心，轉角就會遇到幫你一把的好心人，善意的緣分正在你身邊靜靜流動。'},
-     {name:'平穩順心', detail:'雖然沒有大風大浪，但這種簡單的平安最珍貴。適合泡杯好茶，享受片刻無人打擾的寧靜。'},
-     {name:'夢想成真', detail:'堅持下去！那個你心心念念已久的目標，現在正帶著滿滿的誠意，準備給予你最溫暖的回應。'},
-     {name:'活力滿滿', detail:'今天的你精力充沛，散發的正能量連路邊的小貓都想對你撒嬌，就這樣帶著笑容度過一天吧！'},
-     {name:'小確幸爆發', detail:'今天會遇到許多微小而美好的事：綠燈全開、發票中獎或是聽到一首好聽的歌。'},
-     {name:'負能量退散', detail:'那些煩心事都會自動繞道而行。今天你的周圍有一層隱形的幸運護盾，誰也傷不了你。'},
-     {name:'智慧開悟', detail:'原本想不通的事情，今天會突然豁然開朗。你的直覺非常準確，相信自己的第一判斷。'},
-     {name:'人緣王降臨', detail:'大家都會不自覺想靠近你、找你聊天。適合拓展交友圈，你會發現自己比想像中受歡迎。'},
-     {name:'步步高升', detail:'你的努力終於被看見了！長官或同事對你的評價大幅提升，離升職加薪又更近了一步。'},
-     {name:'健康加分', detail:'身體輕盈得像羽毛一樣。今天特別適合開始新的運動計畫，或是嘗試健康的飲食生活。'},
-     {name:'轉機出現', detail:'停滯不前的事情即將迎來轉折點。保持開放的心態，那個「對的機會」就藏在變化之中。'},
-     {name:'食神保佑', detail:'今天很有口福，會吃到讓你眼睛一亮的美味佳餚，甚至有人會請你吃大餐喔！'},
-     {name:'心靈洗滌', detail:'適合整理房間或斷捨離。當環境變清爽時，你的運勢也會跟著煥然一新，充滿新氣象。'},
-     {name:'勇敢試煉', detail:'今天適合挑戰一件你以前不敢做的小事。踏出舒適圈後，你會發現風景其實美得不可思議。'},
-     {name:'社交天花板', detail:'今天的你幽默感滿分，任何聚會只要有你在就不會冷場，大家都會被你的魅力折服！'},
-     {name:'數位排毒', detail:'暫時放下手機吧！今天適合與大自然接觸，你會發現沒有螢幕的世界，景色依然美得令人心醉。'},
-     {name:'直覺覺醒', detail:'你的第六感正處於巔峰狀態。如果心裡有個聲音告訴你「就是現在」，那就勇敢地相信它吧！'},
-     {name:'財神敲門', detail:'整理錢包或是檢查舊衣口袋，可能會有驚喜的發現。小財進帳的預兆非常強烈喔！'},
-     {name:'斷捨離之日', detail:'適合清理空間的一天。丟掉不再需要的舊物，同時也清理掉心裡的垃圾，好運才會住進來。'},
-     {name:'暖心時刻', detail:'今天會收到來自遠方朋友或久違熟人的關心訊息，這份溫暖會讓你整天心情都亮晶晶的。'},
-     {name:'效率達人', detail:'今天工作或讀書的狀態好得驚人！那些拖延已久的事情，都能在極短的時間內完美搞定。'},
-     {name:'味蕾之旅', detail:'今天適合嘗試從未吃過的異國料理。全新的味道會刺激你的感官，為平凡的生活注入驚喜能量。'},
-     {name:'耐心回報', detail:'你之前默默耕耘、耐心等待的事情，今天終於會開出一朵漂亮的小花，讓你覺得一切都值得。'},
-     {name:'自信發光', detail:'穿上你最喜歡的那套衣服出門吧！今天的你自帶光芒，連路人的回頭率都會大大增加。'},
-     {name:'情緒自由', detail:'那些讓你煩心的人事物，今天你都能雲淡風輕地面對。你掌握了心靈的主導權，誰也氣不到你。'},
-     {name:'好眠保證', detail:'今天特別適合早點上床睡覺。你會做一個輕盈甜美的夢，醒來後感覺靈魂被徹底修復了。'},
-     {name:'大膽冒險', detail:'嘗試一條平時沒走過的回家路，或是點一杯名字很奇怪的飲料。微小的冒險會帶來巨大的樂趣！'},
-     {name:'讚美收割機', detail:'今天你會聽到來自他人的真心稱讚。別害羞，這些都是你應得的，大方地收下這些正能量吧！'},
-     {name:'心靈契合', detail:'與某人的對話會讓你感到深深的共鳴。這種「被理解」的感覺非常珍貴，好好珍惜這份連結。'}
+     {name:'宇宙大吉', detail:'運勢如虹！今天做任何決定都是正確的，大膽前進吧！'},
+     {name:'超級幸運', detail:'會有意外的驚喜發生，請隨時準備好迎接好運氣！'},
+     {name:'桃花朵朵', detail:'你的魅力指數爆表，適合主動與人互動，會有好事發生。'},
+     {name:'財運亨通', detail:'會有小額的偏財運出現，或是撿到便宜的好東西喔！'},
+     {name:'心情綻放', detail:'壓力煙消雲散，今天適合安排一場放鬆的小旅行。'},
+     {name:'靈感爆發', detail:'腦袋裡全是好點子，這絕對是完成創意專案的絕佳時機！'},
+     {name:'貴人相助', detail:'遇到困難別擔心，轉角就會遇到幫你一把的好心人。'},
+     {name:'平穩順心', detail:'雖然沒有大風大浪，但這種簡單的幸福最珍貴，好好享受吧。'},
+     {name:'夢想成真', detail:'堅持下去，那個你心心念念的目標，正準備給你回應！'},
+     {name:'活力滿滿', detail:'今天的你精力充沛，連路邊的小貓都想對你喵喵叫喔！'},
+     {name:'意外驚喜', detail:'會有意想不到的快樂轉機，請保持開朗的心情迎接！'},
+     {name:'耕耘收穫', detail:'努力已久的事情，現在是享受成果的時候了，給自己一個擁抱！'},
+     {name:'人見人愛', detail:'你今天散發著獨特的光芒，走到哪裡都受歡迎！'},
+     {name:'時來運轉', detail:'過去的烏雲散去，晴空萬里，展現自我吧！'},
+     {name:'小確幸', detail:'注意觀察身邊的小事物，也許會發現讓你會心一笑的亮點。'}
    ];
 
    let currentChar = '🐱', currentItem = '🍎', isSpinning = false;
    let currentSelectedCategory = '戀愛運';
-   let currentGeneratedImageUrl = '';
 
-   // 初始化類別按鈕
    const container = document.getElementById('category-container');
    categories.forEach(cat => {
        const btn = document.createElement('button');
        btn.textContent = cat;
-       btn.className = `cat-btn px-2 py-2 text-xs md:text-sm font-bold bg-white/80 border-2 border-pink-200 text-pink-600 rounded-xl hover:bg-pink-100`;
+       btn.className = `cat-btn px-3 py-2 text-sm font-bold bg-white/80 border-2 border-pink-200 text-pink-600 rounded-xl hover:bg-pink-100`;
        if (cat === currentSelectedCategory) btn.classList.add('active');
        btn.onclick = () => {
-           if(isSpinning) return;
            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
            btn.classList.add('active');
            currentSelectedCategory = cat;
@@ -159,162 +133,180 @@
        container.appendChild(btn);
    });
 
+   function openLightbox(imgSrc) {
+       if(!imgSrc) return;
+       const modal = document.getElementById('lightbox');
+       const modalImg = document.getElementById('lightbox-img');
+       modalImg.src = imgSrc;
+       modal.classList.remove('hidden');
+   }
+   function closeLightbox() { document.getElementById('lightbox').classList.add('hidden'); }
+   function openPreviewInLightbox(id) {
+       const preview = document.getElementById(id);
+       const img = preview.querySelector('img');
+       if(img) openLightbox(img.src);
+   }
+
+   // 關鍵修正：優化 Canvas 佈局，確保所有元素都能完整繪製
+   function downloadFortune() {
+     const canvas = document.createElement('canvas');
+     const ctx = canvas.getContext('2d');
+     const fortuneName = document.getElementById('fortune-text').textContent;
+     const fortuneDetail = document.getElementById('fortune-detail').textContent;
+     
+     // 增加高度以容納「註解」文字
+     canvas.width = 800; canvas.height = 500;
+     
+     // 繪製背景
+     const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+     grd.addColorStop(0, '#fff5ff'); grd.addColorStop(1, '#ffd9f0');
+     ctx.fillStyle = grd; ctx.fillRect(0, 0, canvas.width, canvas.height);
+     
+     // 繪製邊框
+     ctx.strokeStyle = '#ffb6d9'; ctx.lineWidth = 12; ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+     
+     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+     
+     // 1. 繪製抽籤圖示 (Emoji)
+     ctx.font = '100px serif';
+     ctx.fillText(`${currentChar} 💗 ${currentItem}`, canvas.width / 2, 100);
+     
+     // 2. 繪製運勢分類 (例如：【戀愛運】)
+     ctx.fillStyle = '#be185d'; 
+     ctx.font = 'bold 32px "Zen Maru Gothic", sans-serif'; 
+     ctx.fillText(`【${currentSelectedCategory}】`, canvas.width / 2, 200);
+     
+     // 3. 繪製運勢結果 (例如：宇宙大吉)
+     ctx.fillStyle = '#ec4899'; 
+     ctx.font = 'bold 60px "Zen Maru Gothic", sans-serif'; 
+     ctx.fillText(fortuneName, canvas.width / 2, 280);
+     
+     // 4. 繪製運勢註解 (詳細文字，加入自動換行處理)
+     ctx.fillStyle = '#7c3aed'; 
+     ctx.font = '24px "Zen Maru Gothic", sans-serif';
+     const maxWidth = 600;
+     const lineHeight = 35;
+     const words = fortuneDetail.split('');
+     let line = '';
+     let y = 350;
+
+     for(let n = 0; n < words.length; n++) {
+       let testLine = line + words[n];
+       let metrics = ctx.measureText(testLine);
+       if (metrics.width > maxWidth && n > 0) {
+         ctx.fillText(line, canvas.width / 2, y);
+         line = words[n];
+         y += lineHeight;
+       } else {
+         line = testLine;
+       }
+     }
+     ctx.fillText(line, canvas.width / 2, y);
+     
+     // 5. 繪製日期與小尾巴
+     ctx.textAlign = 'right'; ctx.fillStyle = '#db2777'; ctx.font = '18px sans-serif'; 
+     ctx.fillText(`📅 ${new Date().toLocaleDateString()}  ✨ 創意製造機`, canvas.width - 50, canvas.height - 50);
+     
+     // 導出為 Blob 解決蘋果產品圖示空白問題
+     canvas.toBlob((blob) => {
+       const url = URL.createObjectURL(blob);
+       const link = document.createElement('a');
+       link.download = `fortune-card-${Date.now()}.png`;
+       link.href = url;
+       link.click();
+       setTimeout(() => URL.revokeObjectURL(url), 100);
+     }, 'image/png');
+   }
+
+   function handleImageUpload(event, previewId) {
+     const file = event.target.files[0];
+     const MAX_SIZE = 1 * 1024 * 1024; 
+     if (!file) return;
+     if (file.size > MAX_SIZE) {
+       alert(`❌ 檔案太大了 (${(file.size/1024/1024).toFixed(2)}MB)！`);
+       event.target.value = ''; return;
+     }
+     const reader = new FileReader();
+     reader.onload = (e) => {
+       const preview = document.getElementById(previewId);
+       preview.innerHTML = `<img src="${e.target.result}" class="h-full w-full object-cover">`;
+       preview.dataset.image = e.target.result;
+     };
+     reader.readAsDataURL(file);
+   }
+
    function spin() {
      if (isSpinning) return;
      isSpinning = true;
      const btn = document.getElementById('spin-btn'); btn.disabled = true;
-     document.getElementById('fortune-section').classList.add('hidden');
-     
      let count = 0;
      const timer = setInterval(() => {
        document.getElementById('slot1').textContent = characters[Math.floor(Math.random()*characters.length)].emoji;
        document.getElementById('slot2').textContent = items[Math.floor(Math.random()*items.length)].emoji;
        if(++count > 15) {
            clearInterval(timer);
-           currentChar = document.getElementById('slot1').textContent;
-           currentItem = document.getElementById('slot2').textContent;
+           currentChar = characters[Math.floor(Math.random()*characters.length)].emoji;
+           currentItem = items[Math.floor(Math.random()*items.length)].emoji;
+           document.getElementById('slot1').textContent = currentChar;
+           document.getElementById('slot2').textContent = currentItem;
            const f = fortunes[Math.floor(Math.random()*fortunes.length)];
-           generateFortuneImage(f.name, f.detail);
+           document.getElementById('fortune-text').textContent = f.name;
+           document.getElementById('fortune-detail').textContent = f.detail;
            document.getElementById('fortune-section').classList.remove('hidden');
            isSpinning = false; btn.disabled = false;
        }
-     }, 80);
+     }, 100);
    }
-
-   function generateFortuneImage(title, detail) {
-     const canvas = document.createElement('canvas');
-     const ctx = canvas.getContext('2d');
-     canvas.width = 600; canvas.height = 750;
-     
-     const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
-     grd.addColorStop(0, '#fff5ff'); grd.addColorStop(1, '#ffd9f0');
-     ctx.fillStyle = grd; ctx.fillRect(0, 0, canvas.width, canvas.height);
-     
-     ctx.strokeStyle = '#ffb6d9'; ctx.lineWidth = 20; ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
-     
-     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-     ctx.font = '100px serif'; ctx.fillText(currentChar, canvas.width * 0.3, 160);
-     ctx.font = '50px serif'; ctx.fillText('💗', canvas.width * 0.5, 160);
-     ctx.font = '100px serif'; ctx.fillText(currentItem, canvas.width * 0.7, 160);
-     
-     ctx.fillStyle = '#be185d'; ctx.font = 'bold 28px "Zen Maru Gothic", sans-serif';
-     ctx.fillText(`【 ${currentSelectedCategory} 】`, canvas.width / 2, 280);
-     
-     ctx.fillStyle = '#ec4899'; ctx.font = 'bold 70px "Zen Maru Gothic", sans-serif'; 
-     ctx.fillText(title, canvas.width / 2, 360);
-
-     ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-     ctx.beginPath();
-     if(ctx.roundRect) { ctx.roundRect(80, 440, 440, 200, 20); } else { ctx.rect(80, 440, 440, 200); }
-     ctx.fill();
-
-     ctx.fillStyle = '#6d28d9'; ctx.font = '500 26px "Zen Maru Gothic", sans-serif';
-     wrapText(ctx, detail, canvas.width / 2, 500, 380, 40);
-     
-     currentGeneratedImageUrl = canvas.toDataURL('image/png');
-     document.getElementById('fortune-image-container').innerHTML = `<img src="${currentGeneratedImageUrl}" class="w-full">`;
-   }
-
-   function wrapText(context, text, x, y, maxWidth, lineHeight) {
-      const words = text.split('');
-      let line = '';
-      for (let n = 0; n < words.length; n++) {
-          let testLine = line + words[n];
-          let metrics = context.measureText(testLine);
-          if (metrics.width > maxWidth && n > 0) {
-              context.fillText(line, x, y);
-              line = words[n]; y += lineHeight;
-          } else { line = testLine; }
-      }
-      context.fillText(line, x, y);
-   }
-
-   async function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-         const reader = new FileReader();
-         reader.readAsDataURL(file);
-         reader.onload = () => resolve(reader.result);
-         reader.onerror = error => reject(error);
-      });
-   }
-
-   function downloadFortune() {
-     const link = document.createElement('a');
-     link.download = `fortune-${Date.now()}.png`; link.href = currentGeneratedImageUrl; link.click();
-   }
-
-   function openLightbox(imgSrc) {
-       if(!imgSrc) return;
-       document.getElementById('lightbox-img').src = imgSrc;
-       document.getElementById('lightbox').classList.remove('hidden');
-   }
-   function closeLightbox() { document.getElementById('lightbox').classList.add('hidden'); }
 
    async function fetchGallery() {
        const galleryGrid = document.getElementById('gallery-grid');
-       galleryGrid.innerHTML = `<div class="col-span-full text-center p-8 text-pink-500 animate-pulse">⏳ 正在載入展示牆...</div>`;
+       galleryGrid.innerHTML = `<div class="col-span-full text-center p-8 text-pink-500 font-bold animate-pulse">⏳ 展示牆準備中...</div>`;
        try {
            const res = await fetch(SCRIPT_URL);
            const data = await res.json();
            if (!data || data.length === 0) {
-               galleryGrid.innerHTML = `<div class="col-span-full text-center p-8 text-gray-400">目前尚無作品，快來投稿吧！</div>`;
+               galleryGrid.innerHTML = `<div class="col-span-full text-center p-8 text-gray-400 font-bold">目前還沒有人投稿喔～快來搶頭香！✨</div>`;
                return;
            }
            galleryGrid.innerHTML = data.reverse().map(sub => `
-               <div class="fortune-card p-4 shadow-lg bg-white/80 rounded-2xl group transition-all">
-                   <div class="relative w-full h-64 bg-gray-100 rounded-lg mb-4 overflow-hidden cursor-pointer" onclick="openLightbox('${sub.display_image || ''}')">
-                       <img src="${sub.display_image || ''}" class="w-full h-full object-cover">
+               <div class="fortune-card p-4 shadow-lg bg-white/80 rounded-2xl relative">
+                   <div class="relative w-full h-64 bg-gray-200 rounded-lg mb-4 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${sub.display_image || ''}')">
+                       <img src="${sub.display_image || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" class="w-full h-full object-cover">
+                       <div class="hidden text-gray-400 font-bold">無圖片</div>
                    </div>
-                   <div class="flex justify-center -mt-24 relative z-10">
-                       <div class="relative w-44 h-56 bg-white border-4 border-white rounded-xl shadow-2xl overflow-hidden cursor-pointer hover:scale-105 transition-all" onclick="openLightbox('${sub.card_image || ''}')">
-                           <img src="${sub.card_image || ''}" class="w-full h-full object-cover">
+                   <div class="flex justify-center -mt-16 relative z-10">
+                       <div class="relative w-48 h-28 bg-gray-300 border-4 border-white rounded-xl shadow-xl flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition-all hover:scale-105" onclick="openLightbox('${sub.card_image || ''}')">
+                           <img src="${sub.card_image || ''}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" class="w-full h-full object-cover">
+                           <div class="hidden text-xs text-white">無圖</div>
                        </div>
                    </div>
                    <div class="text-center mt-4">
-                       <p class="font-bold text-pink-600 text-lg">${sub.creator_name || '匿名幸運兒'}</p>
-                       <a href="${sub.creator_url || '#'}" target="_blank" class="text-xs text-purple-400 underline hover:text-purple-600">${sub.creator_url ? '✨ 追蹤作者' : '來自宇宙的祝福'}</a>
+                       <p class="font-bold text-pink-600">${sub.creator_name || '匿名'}</p>
+                       <a href="${sub.creator_url || '#'}" target="_blank" class="text-xs text-purple-400 underline break-all hover:text-purple-600">${sub.creator_url ? '查看來源' : '無網址'}</a>
                    </div>
                </div>
            `).join('');
-       } catch (e) { galleryGrid.innerHTML = `<div class="col-span-full text-center p-8 text-red-400">❌ 展示牆載入失敗</div>`; }
+       } catch (e) {
+           galleryGrid.innerHTML = `<div class="col-span-full text-center p-8 text-red-400 font-bold">❌ 哎呀，載入出錯了，請稍後再試！</div>`;
+       }
    }
 
    async function submitFortune() {
-     const cardFile = document.getElementById('card-image-input').files[0];
-     const displayFile = document.getElementById('display-image-input').files[0];
+     const cardImg = document.getElementById('card-preview').dataset.image;
+     const displayImg = document.getElementById('display-preview').dataset.image;
      const name = document.getElementById('creator-name-input').value.trim();
      const url = document.getElementById('creator-url-input').value.trim();
      const status = document.getElementById('submit-status');
-
-     if (!cardFile || !displayFile || !name) { 
-        status.textContent = '❌ 請選取兩個檔案並輸入暱稱喔！'; 
-        status.style.color = 'red'; return; 
-     }
-
-     status.textContent = '⏳ 上傳中，請稍候...'; status.style.color = '#db2777';
-     
+     if (!cardImg || !displayImg || !name || !url) { status.textContent = '❌ 請填寫完整資料'; return; }
+     status.textContent = '⏳ 正在寫入雲端...';
      try {
-       const cardBase64 = await fileToBase64(cardFile);
-       const displayBase64 = await fileToBase64(displayFile);
-
-       await fetch(SCRIPT_URL, { 
-         method: 'POST', mode: 'no-cors', 
-         body: JSON.stringify({ 
-           id: Date.now().toString(), card_image: cardBase64, display_image: displayBase64, 
-           creator_name: name, creator_url: url, created_at: new Date().toLocaleString() 
-         }) 
-       });
-       status.textContent = '✨ 投稿成功！頁面即將跳轉。'; status.style.color = 'green';
+       await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: Date.now().toString(), card_image: cardImg, display_image: displayImg, creator_name: name, creator_url: url, created_at: new Date().toLocaleString() }) });
+       status.textContent = '✨ 投稿成功！';
        setTimeout(() => location.reload(), 2000);
-     } catch (e) { status.textContent = '❌ 發生錯誤，請檢查網路連線'; status.style.color = 'red'; }
+     } catch (e) { status.textContent = '❌ 提交出錯'; }
    }
 
-   function toggleSubmitPanel() { 
-    const panel = document.getElementById('submit-panel');
-    panel.classList.toggle('hidden');
-    if(!panel.classList.contains('hidden')) panel.scrollIntoView({ behavior: 'smooth' });
-   }
-
+   function toggleSubmitPanel() { document.getElementById('submit-panel').classList.toggle('hidden'); }
    window.onload = fetchGallery;
  </script>
 </body>
