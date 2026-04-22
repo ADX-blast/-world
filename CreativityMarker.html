@@ -69,12 +69,12 @@
      <h3 class="text-2xl font-bold text-center text-pink-500 mb-4">分享你的運勢卡</h3>
      <div class="space-y-4">
         <div>
-            <label class="block text-sm font-bold text-pink-600 mb-1">🎴 小卡片圖片</label>
+            <label class="block text-sm font-bold text-pink-600 mb-1">🎴 小卡片圖片 <span class="text-xs font-normal text-pink-400">(限制 1MB)</span></label>
             <input type="file" id="card-image-input" accept="image/*" onchange="handleImageUpload(event, 'card-preview')" class="w-full text-sm">
             <div id="card-preview" class="mt-2 h-64 bg-white/50 rounded flex items-center justify-center text-gray-400 border border-pink-200 overflow-hidden cursor-pointer hover:bg-white/70" onclick="openPreviewInLightbox('card-preview')">預覽小卡</div>
         </div>
         <div>
-            <label class="block text-sm font-bold text-purple-600 mb-1">🖼️ 展示圖片</label>
+            <label class="block text-sm font-bold text-purple-600 mb-1">🖼️ 展示圖片 <span class="text-xs font-normal text-purple-400">(限制 1MB)</span></label>
             <input type="file" id="display-image-input" accept="image/*" onchange="handleImageUpload(event, 'display-preview')" class="w-full text-sm">
             <div id="display-preview" class="mt-2 h-32 bg-white/50 rounded flex items-center justify-center text-gray-400 border border-purple-200 overflow-hidden cursor-pointer hover:bg-white/70" onclick="openPreviewInLightbox('display-preview')">預覽圖片</div>
         </div>
@@ -223,7 +223,7 @@
      const MAX_SIZE = 1 * 1024 * 1024; 
      if (!file) return;
      if (file.size > MAX_SIZE) {
-       alert(`❌ 檔案太大了 (${(file.size/1024/1024).toFixed(2)}MB)！`);
+       alert(`❌ 檔案太大了 (${(file.size/1024/1024).toFixed(2)}MB)！請上傳小於 1MB 的圖片。`);
        event.target.value = ''; return;
      }
      const reader = new FileReader();
