@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣歷史地圖 - 搜尋與精確跳轉版</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="locations_data.js"></script>
+
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; }
+        #map { height: 100vh; width: 100%; background: #aad3df; z-index: 1; }
+
+        .controls-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(255,255,255,0.95) 0%, transparent 100%);
+            padding: 20px 40px 40px; z-index: 1000; pointer-events: auto;
+        }
+        .controls-content { max-width: 1200px; margin: 0 auto; }
+        
+        /* 進度條 */
+        .progress-container { position: relative; height: 30px; display: flex; align-items: center; cursor: pointer; margin-bottom: 15px; }
+        .progress-bg { height: 8px; width: 100%; background: rgba(0,0,0,0.1); border-radius: 4px; position: relative; }
+        .progress-bar { height: 100%; background: #e74c3c; width: 0%; border-radius: 4px; position: relative; }
+        .progress-bar::after { 
+            content: ''; position: absolute; right: -8px; top: -6px; 
+            width: 20px; height: 20px; background: #fff; border: 3px solid #e74c3c; 
+            border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .bottom-ui { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .play-btn {
+            background: #2c3e50; border: none; color: #fff; width: 60px; height: 60px; 
+            border-radius: 50%; cursor: pointer; font-size: 24px; display: flex; align-items: center; justify-content: center;
+        }
+        
+        .time-display { flex-grow: 1; min-width: 200px; }
+        .year-label { font-size: 28px; font-weight: 900; color: #2c3e50; display: block; }
+        .date-sub-label { font-size: 16px; color: #7f8c8d; font-weight: bold; }
+        
+        /* 控制組通用樣式 */
+        .control-group { display: flex; align-items: center; gap: 5px; background: #fff; padding: 8px 15px; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .input-label { font-size: 12px; color: #95a5a6; margin-right: 2px; }
+        
+        input { border: 1px solid #ddd; padding: 5px; border-radius: 4px; text-align: center; font-size: 14px; }
+        .year-input { width: 60px; }
+        .day-input { width: 35px; }
+        .search-input { width: 120px; text-align: left; padding-left: 10px; border-radius: 20px; }
+
+        .ui-btn { background: #ecf0f1; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; color: #2c3e50; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .ui-btn:hover { background: #e74c3c; color: #fff; }
+        #speedDisplay { min-width: 85px; text-align: center; font-weight: bold; color: #e74c3c; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div class="controls-overlay">
+    <div class="controls-content">
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bg"><div class="progress-bar" id="progressBar"></div></div>
+        </div>
+        
+        <div class="bottom-ui">
+            <button class="play-btn" id="playBtn">▶</button>
+            
+            <div class="time-display">
+                <div class="year-label" id="yearLabel">載入中...</div>
+                <div class="date-sub-label" id="dateLabel">請稍候</div>
+            </div>
+
+            <div class="control-group">
+                <i class="fa-solid fa-magnifying-glass" style="color:#95a5a6"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="搜尋地點...">
+                <button class="ui-btn" onclick="searchLocation()"><i class="fa-solid fa-location-arrow"></i></button>
+            </div>
+            
+            <div class="control-group">
+                <span class="input-label">跳轉時間</span>
+                <input type="number" id="inYear" class="year-input" placeholder="年">
+                <input type="number" id="inMonth" class="day-input" placeholder="月">
+                <input type="number" id="inDay" class="day-input" placeholder="日">
+                <button class="ui-btn" onclick="jumpToDate()"><i class="fa-solid fa-calendar-check"></i></button>
+            </div>
+
+            <div class="control-group">
+                <button class="ui-btn" onclick="changeSpeed(-1)">－</button>
+                <div id="speedDisplay">1 年 / 秒</div>
+                <button class="ui-btn" onclick="changeSpeed(1)">＋</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const locations = (typeof historicalData !== 'undefined') ? historicalData : [];
+    const iconConfig = (typeof iconStyles !== 'undefined') ? iconStyles : {};
+
+    const map = L.map('map', { zoomControl: false }).setView([23.5, 120.8], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    let currentYear = -30000;
+    const minYear = -30000, maxYear = 2026;
+    let isPlaying = false, animationFrame, lastTime = 0;
+    const markerMap = new Map();
+
+    const speeds = [
+        { label: "1 天 / 秒", val: 1/365.25 },
+        { label: "10 天 / 秒", val: 10/365.25 },
+        { label: "1 個月 / 秒", val: 1/12 },
+        { label: "1 年 / 秒", val: 1 },
+        { label: "10 年 / 秒", val: 10 },
+        { label: "100 年 / 秒", val: 100 }
+    ];
+    let speedIdx = 3;
+
+    // --- 功能函數 ---
+
+    function formatFullDate(decimalYear) {
+        let year = Math.floor(decimalYear);
+        let remainder = decimalYear - year;
+        let yearStr = year < 0 ? `西元前 ${Math.abs(year)} 年` : `西元 ${year} 年`;
+        if (year === 0) yearStr = "西元前 1 年";
+        let totalDays = Math.floor(remainder * 365.25);
+        let tempDate = new Date(2023, 0, 1); 
+        tempDate.setDate(tempDate.getDate() + totalDays);
+        return { yearStr, dateStr: `${tempDate.getMonth() + 1} 月 ${tempDate.getDate()} 日` };
+    }
+
+    function getPos(loc, year) {
+        if (!loc.path) return loc.latlng;
+        const p = loc.path;
+        if (year <= p[0][0]) return [p[0][1], p[0][2]];
+        if (year >= p[p.length-1][0]) return [p[p.length-1][1], p[p.length-1][2]];
+        for (let i = 0; i < p.length - 1; i++) {
+            const s = p[i], e = p[i+1];
+            if (year >= s[0] && year <= e[0]) {
+                const r = (year - s[0]) / (e[0] - s[0]);
+                return [s[1] + (e[1] - s[1]) * r, s[2] + (e[2] - s[2]) * r];
+            }
+        }
+    }
+
+    function update() {
+        locations.forEach(loc => {
+            const active = (currentYear >= loc.startYear && currentYear <= loc.endYear);
+            if (active) {
+                const pos = getPos(loc, currentYear);
+                if (!markerMap.has(loc.name)) {
+                    const iconUrl = iconConfig[loc.iconType] || iconConfig["預設圖片"];
+                    let sHtml = loc.sources ? "<hr>" + loc.sources.map(s => `<a href="${s.url}" target="_blank" style="color:#e74c3c;text-decoration:none;font-size:11px">${s.label}</a>`).join(" | ") : "";
+                    const mk = L.marker(pos, {
+                        icon: L.icon({ iconUrl: iconUrl, iconSize: [32, 32], iconAnchor: [16, 16] })
+                    }).bindPopup(`<div><strong>${loc.name}</strong><br><small>${loc.period||''}</small><p style="font-size:13px">${loc.description}</p>${sHtml}</div>`).addTo(map);
+                    markerMap.set(loc.name, mk);
+                } else {
+                    markerMap.get(loc.name).setLatLng(pos);
+                }
+            } else if (markerMap.has(loc.name)) {
+                map.removeLayer(markerMap.get(loc.name));
+                markerMap.delete(loc.name);
+            }
+        });
+        const timeInfo = formatFullDate(currentYear);
+        document.getElementById('yearLabel').innerText = timeInfo.yearStr;
+        document.getElementById('dateLabel').innerText = timeInfo.dateStr;
+        document.getElementById('progressBar').style.width = `${((currentYear - minYear) / (maxYear - minYear)) * 100}%`;
+        document.getElementById('speedDisplay').innerText = speeds[speedIdx].label;
+    }
+
+    // --- 互動邏輯 ---
+
+    // 新增：搜尋功能
+    window.searchLocation = function() {
+        const query = document.getElementById('searchInput').value.trim();
+        if (!query) return;
+        
+        const found = locations.find(loc => loc.name.includes(query));
+        if (found) {
+            // 跳轉到該地點的開始年份
+            currentYear = found.startYear;
+            update();
+            // 移動地圖並開啟彈窗
+            setTimeout(() => {
+                const mk = markerMap.get(found.name);
+                if (mk) {
+                    map.flyTo(mk.getLatLng(), 10);
+                    mk.openPopup();
+                }
+            }, 100);
+        } else {
+            alert("找不到該事件或標地，請確認名稱是否正確");
+        }
+    };
+
+    window.jumpToDate = function() {
+        let y = parseInt(document.getElementById('inYear').value);
+        let m = parseInt(document.getElementById('inMonth').value) || 1;
+        let d = parseInt(document.getElementById('inDay').value) || 1;
+        if (isNaN(y)) return;
+        const dayDiff = (new Date(2023, m-1, d) - new Date(2023, 0, 1)) / 86400000;
+        currentYear = Math.max(minYear, Math.min(maxYear, y + (dayDiff / 365.25)));
+        update();
+    };
+
+    window.changeSpeed = function(d) {
+        speedIdx = Math.max(0, Math.min(speeds.length - 1, speedIdx + d));
+        update();
+    };
+
+    function animate(time) {
+        if (!isPlaying) return;
+        if (!lastTime) lastTime = time;
+        currentYear += speeds[speedIdx].val * ((time - lastTime) / 1000);
+        lastTime = time;
+        if (currentYear >= maxYear) { currentYear = maxYear; togglePlay(false); }
+        update();
+        animationFrame = requestAnimationFrame(animate);
+    }
+
+    function togglePlay(f) {
+        isPlaying = (f !== undefined) ? f : !isPlaying;
+        document.getElementById('playBtn').innerHTML = isPlaying ? '<i class="fa-solid fa-pause"></i>' : '▶';
+        if (isPlaying) { lastTime = 0; animationFrame = requestAnimationFrame(animate); }
+        else cancelAnimationFrame(animationFrame);
+    }
+
+    const container = document.getElementById('progressContainer');
+    let isDragging = false;
+    function handleSeek(e) {
+        const rect = container.getBoundingClientRect();
+        const offsetX = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+        currentYear = minYear + (maxYear - minYear) * Math.max(0, Math.min(1, offsetX / rect.width));
+        update();
+    }
+    container.onmousedown = (e) => { isDragging = true; handleSeek(e); };
+    window.onmousemove = (e) => { if (isDragging) handleSeek(e); };
+    window.onmouseup = () => { isDragging = false; };
+    document.getElementById('playBtn').onclick = () => togglePlay();
+
+    update();
+</script>
+</body>
+</html>
