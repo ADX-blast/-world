@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣8+9模擬器</title>
+    <style>
+        body { background-color: #050505; color: #e0e0e0; font-family: "Microsoft JhengHei", sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 600px; width: 100%; background-color: #151515; padding: 20px; border-radius: 15px; border: 2px solid #222; box-shadow: 0 0 30px rgba(0,0,0,0.5); position: relative; }
+        h1 { text-align: center; color: #ff0000; text-shadow: 0 0 10px #f00; margin: 0; font-size: 1.8em; }
+        .subtitle { text-align: center; color: #666; font-size: 0.8em; margin-bottom: 10px; }
+        .time-box { text-align: center; background: #222; padding: 8px; border-radius: 5px; font-weight: bold; color: #fff; margin-bottom: 15px; border-left: 5px solid #ff0000; }
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .stat-item { background: #0a0a0a; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
+        .stat-val { font-size: 1.2em; font-weight: bold; transition: 0.2s; }
+        
+        .bar-container { grid-column: span 2; background: #222; height: 20px; border-radius: 10px; overflow: hidden; margin-bottom: 8px; position: relative; border: 1px solid #444; }
+        .bar-fill { height: 100%; transition: 0.4s; }
+        .label { position: absolute; width: 100%; text-align: center; font-size: 10px; font-weight: bold; line-height: 20px; color: #fff; z-index: 2; text-shadow: 1px 1px 2px #000; }
+        
+        @keyframes bar-border-danger { 0%, 100% { border-color: #ff0000; box-shadow: 0 0 5px #ff0000; } 50% { border-color: #550000; box-shadow: 0 0 15px #ff0000; } }
+        .bar-danger-blink { animation: bar-border-danger 0.4s infinite !important; border: 2px solid #ff0000 !important; }
+        @keyframes health-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .health-critical { animation: health-pulse 0.5s infinite !important; }
+        .predict-up { animation: blink-green 0.5s infinite; }
+        .predict-down { animation: blink-red 0.5s infinite; }
+        @keyframes blink-green { 0%, 100% { color: #fff; } 50% { color: #00ff00; } }
+        @keyframes blink-red { 0%, 100% { color: #fff; } 50% { color: #ff0000; } }
+
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        button { background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; text-align: left; transition: 0.2s; }
+        button small { display: block; font-size: 0.7em; color: #888; font-weight: normal; margin-top: 3px; }
+        button:hover:not(:disabled) { background: #252525; border-color: #ff0000; }
+        
+        .log-container { background: linear-gradient(180deg, #000 0%, #111 100%); height: 180px; overflow-y: auto; padding: 12px; border-radius: 8px; font-size: 0.85em; border: 1px solid #444; box-shadow: inset 0 0 10px #000; }
+        .log-entry { margin-bottom: 6px; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #666; background: rgba(255, 255, 255, 0.03); animation: slide-in 0.3s ease-out; }
+        .log-good { color: #55ff55; border-left-color: #00ff00; }
+        .log-bad { color: #ff5555; border-left-color: #ff0000; font-weight: bold; }
+        .log-money { color: #ffd700; border-left-color: #daa520; }
+        .log-face { color: #da70d6; border-left-color: #ba55d3; }
+        .log-info { color: #55ffff; border-left-color: #00ffff; }
+
+        #endingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); display:none; flex-direction:column; justify-content:center; align-items:center; z-index:100; text-align:center; padding: 20px; }
+
+        .author-contact {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 0, 0, 0.15);
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            padding: 10px 18px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 0.85em;
+            font-weight: bold;
+            transition: 0.3s;
+            backdrop-filter: blur(5px);
+            z-index: 99;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+        }
+        .author-contact:hover {
+            background: #ff0000;
+            color: #fff;
+            box-shadow: 0 0 25px #ff0000;
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 600px) {
+            .author-contact {
+                position: relative;
+                bottom: 0;
+                right: 0;
+                margin-top: 20px;
+                display: inline-block;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="endingOverlay">
+    <h1 id="endTitle" style="color:red; font-size: 2.5em;">結局</h1>
+    <p id="endDesc" style="color:#ccc; margin: 20px 0; line-height: 1.6;"></p>
+    <button onclick="location.reload()" style="padding:15px 60px; background:#ff0000; color:white; border:none; cursor:pointer; font-size: 1.2em; border-radius: 50px; font-weight: bold; text-align: center; display: block; margin: 0 auto;">重新投胎</button>
+</div>
+
+<div class="container">
+    <h1> 十五天亡命生存 </h1>
+    <div class="subtitle">台灣街頭 8+9 生存模擬器</div>
+    <div class="time-box" id="timeBox">第 1 / 15 天 - 🌞 早上</div>
+    
+    <div class="stats">
+        <div class="stat-item"><span>現金 (NTD)</span><div class="stat-val" id="money">1,500</div></div>
+        <div class="stat-item"><span>江湖面子</span><div class="stat-val" id="face">10</div></div>
+        
+        <div class="bar-container" id="energyBox">
+            <div class="label">體力 (Energy)</div>
+            <div class="bar-fill" id="energyFill" style="width: 100%; background: #4caf50;"></div>
+        </div>
+        
+        <div class="bar-container" id="healthBox">
+            <div class="label">健康度 (Health)</div>
+            <div class="bar-fill" id="healthFill" style="width: 100%; background: #e91e63;"></div>
+        </div>
+        
+        <div class="bar-container">
+            <div class="label">罪惡指數 (Crime)</div>
+            <div class="bar-fill" id="crimeFill" style="width: 0%; background: #fbc02d;"></div>
+        </div>
+    </div>
+
+    <div class="actions" id="actionPanel">
+        <button onmouseover="pv('temple')" onmouseout="rp()" onclick="act('temple')">🥁 出陣頭 <small>體力 -35 | 獲 $400</small></button>
+        <button onmouseover="pv('scam')" onmouseout="rp()" onclick="act('scam')">📞 偏門博弈 <small>體力 -20 | 獲 $6000</small></button>
+        <button onmouseover="pv('doctor')" onmouseout="rp()" onclick="act('doctor')">🏥 看醫生 <small>體力 -10 | 耗 $2000 | HP+15</small></button>
+        <button onmouseover="pv('fight')" onmouseout="rp()" onclick="act('fight')">⚔️ 支援火拼 <small>體力 -50 | 獲 $5000</small></button>
+        <button onmouseover="pv('pray')" onmouseout="rp()" onclick="act('pray')">🙏 宮廟拜拜 <small>體力 -10 | 耗 $500 | 罪惡-15</small></button>
+        <button onmouseover="pv('drink')" onmouseout="rp()" onclick="act('drink')">🍺 酒店通宵 <small>體力 -40 | 耗 $4000 | 面子+30| 健康 -5</small></button>
+        <button onmouseover="pv('sleep')" onmouseout="rp()" onclick="act('sleep')">😴 睡到隔天 <small>體力 100% | 健康 +10</small></button>
+        <button onmouseover="pv('c300')" onmouseout="rp()" onclick="act('c300')">🏎️ 借C300 <small>體力 -15 | 耗 $300 | 面子+15</small></button>
+    </div>
+
+    <div class="log-container" id="logBox"></div>
+</div>
+
+<a href="mailto:asd89209@gmail.com?subject=【江湖線報】發現模擬器狀況&body=您好，%0D%0A%0D%0A在執行「十五天亡命生存」任務時，發現了以下狀況：%0D%0A%0D%0A狀況描述：%0D%0A%0D%0A祝 萬事大吉！" class="author-contact">
+    📩 線報提供
+</a>
+
+<script>
+    let d = 1, t = 0, live = true, hasActed = false;
+    const tn = ["🌞 早上", "😎 下午", "🌙 晚上", "🦉 半夜"];
+    let p = { money: 1500, face: 10, energy: 100, health: 100, crime: 0 };
+
+    // --- 測試用鍵盤輸入功能 ---
+    window.addEventListener('keydown', (e) => {
+        if (!live) return;
+        const key = e.key.toLowerCase();
+        if (key === 'a') {
+            let val = prompt("修改【現金 (Money)】:", p.money);
+            if (val !== null) { p.money = parseInt(val); hasActed = true; up(); }
+        } else if (key === 's') {
+            let val = prompt("修改【江湖面子 (Face)】:", p.face);
+            if (val !== null) { p.face = parseInt(val); hasActed = true; up(); }
+        } else if (key === 'd') {
+            let val = prompt("修改【健康度 (Health)】:", p.health);
+            if (val !== null) { p.health = Math.min(100, parseInt(val)); hasActed = true; up(); }
+        } else if (key === 'f') { // 額外增加 F 修改罪惡
+            let val = prompt("修改【罪惡指數 (Crime)】:", p.crime);
+            if (val !== null) { p.crime = Math.min(100, parseInt(val)); hasActed = true; up(); }
+        } else if (key === 'g') { // 額外增加 G 修改天數
+            let val = prompt("修改【當前天數 (Day)】:", d);
+            if (val !== null) { d = parseInt(val); up(); if(d > 15) final(); }
+        }
+    });
+    // ------------------------
+
+    function up() {
+        document.getElementById('money').innerText = p.money.toLocaleString();
+        document.getElementById('face').innerText = p.face;
+        document.getElementById('timeBox').innerText = `第 ${d} / 15 天 - ${tn[t]}`;
+        
+        const eb = document.getElementById('energyBox');
+        const ef = document.getElementById('energyFill');
+        const hf = document.getElementById('healthFill');
+
+        ef.style.width = Math.max(0, p.energy) + "%";
+        if (p.energy <= 0) eb.classList.add('bar-danger-blink');
+        else eb.classList.remove('bar-danger-blink');
+
+        hf.style.width = Math.max(0, p.health) + "%";
+        if (p.health < 30) hf.classList.add('health-critical');
+        else hf.classList.remove('health-critical');
+
+        document.getElementById('crimeFill').style.width = p.crime + "%";
+
+        if (p.health <= 0) end("💀 結局：過勞暴斃", "你倒在路邊，路過的小弟只是跨過你的身體。");
+        if (p.crime >= 100) end("🚓 結局：收網捕獲", "警方破門而入時，你連內褲都沒穿好。");
+    }
+
+    function pv(a) {
+        if(!live) return;
+        let n = {...p};
+        const c = {
+            temple: { m:400, f:3, e:-35, c:0, h:0 },
+            scam: { m:6000, f:0, e:-20, c:20, h:0 },
+            doctor: { m:-2000, f:0, e:-10, c:0, h:15 },
+            fight: { m:5000, f:50, e:-50, c:15, h:0 },
+            pray: { m:-500, f:0, e:-10, c:-15, h:0 },
+            drink: { m:-4000, f:30, e:-40, c:0, h:-5 },
+            sleep: { m:0, f:0, e:100, c:0, h:10 },
+            c300: { m:-300, f:15, e:-15, c:0, h:0 }
+        };
+        let ch = c[a];
+        
+        if(a === 'sleep') { n.energy = 100; } 
+        else { n.energy += ch.e; }
+        
+        n.money += ch.m;
+        n.face += ch.f;
+        n.health = Math.min(100, n.health + ch.h);
+        n.crime = Math.max(0, n.crime + ch.c);
+
+        if (n.energy < 0) {
+            let penalty = Math.abs(Math.floor(n.energy / 10)) * 5;
+            n.health = Math.max(0, n.health - penalty);
+            n.energy = 0;
+        }
+
+        vpv('money', p.money, n.money);
+        vpv('face', p.face, n.face);
+        
+        document.getElementById('energyFill').style.width = Math.max(0, n.energy) + "%";
+        document.getElementById('healthFill').style.width = Math.max(0, n.health) + "%";
+        document.getElementById('crimeFill').style.width = Math.max(0, n.crime) + "%";
+    }
+
+    function vpv(id, cur, nxt) {
+        const e = document.getElementById(id);
+        e.innerText = nxt.toLocaleString();
+        e.className = 'stat-val ' + (nxt > cur ? 'predict-up' : nxt < cur ? 'predict-down' : '');
+    }
+
+    function rp() { if(live) { document.getElementById('money').className = 'stat-val'; document.getElementById('face').className = 'stat-val'; up(); } }
+
+    function act(a) {
+        if(!live) return;
+        let r = Math.random();
+        if (p.health < 30 && r < (0.2 - p.health/100)) return end("💀 結局：突發心肌梗塞", "這就是不休息的代價。");
+
+        const m = {
+            temple: () => { 
+                hasActed = true;
+                p.energy -= 35;
+                if(r < 0.05) { p.money -= 2000; p.health -= 15; lg("陣頭亂鬥受傷！現金-2000，健康重創！","log-bad"); } 
+                else { p.money += 400; p.face += 3; lg("領薪 $400，面子提升。","log-money"); } 
+            },
+            scam: () => { 
+                hasActed = true;
+                if(r < 0.02) return end("🚓 結局：機房被抄", "你只是個被犧牲的車手。"); 
+                p.energy -= 20; p.money += 6000; p.crime += 20; lg("博弈水房大入帳！現金 +$6000。","log-money"); 
+            },
+            doctor: () => { 
+                hasActed = true;
+                if(p.money < -2000) { lg("債台高築（超過-2000），醫生叫你滾。","log-bad"); return 0; } 
+                p.energy -= 10; p.money -= 2000; p.health = Math.min(100, p.health + 15); lg("就醫健康 +15。","log-info"); 
+            },
+            fight: () => { 
+                hasActed = true;
+                if(r < 0.02) return end("🔪 結局：橫死街頭", "對方的刀比你快。"); 
+                p.energy -= 50;
+                if(r > 0.4) { p.face += 50; p.money += 5000; p.crime += 15; lg("火拼大勝！大哥賞紅包 5000。","log-money"); } 
+                else { p.money -= 2000; p.health -= 25; p.face -= 10; lg("火拼失敗送醫，鼻青臉腫。","log-bad"); } 
+            },
+            pray: () => { 
+                hasActed = true; 
+                if(p.money < -2000) { lg("連香油錢都欠超過2000，神明不想聽。","log-bad"); return 0; }
+                p.energy -= 10; p.money -= 500; p.crime = Math.max(0, p.crime - 15); lg("宮廟懺悔，罪惡感減少。","log-good"); 
+            },
+            drink: () => { 
+                hasActed = true;
+                if(p.money < -2000) { lg("欠債超過2000還想開桌？被保全踢出去。","log-bad"); return 0; } 
+                p.energy -= 40; p.money -= 4000; p.face += 30; p.health -= 5; lg("酒店開威士忌，全場叫你一聲哥！","log-face"); 
+            },
+            sleep: () => { p.energy = 100; p.health = Math.min(100, p.health + 10); lg("大睡一場，體力回滿。","log-good"); d++; t = 0; return 2; },
+            c300: () => { 
+                hasActed = true;
+                if(p.money < -2000) { lg("欠債超過2000，連油都加不起，車被收走了。","log-bad"); return 0; } 
+                p.energy -= 15; p.money -= 300; p.face += 15; lg("C300 炸街面子 +15。","log-face"); 
+            }
+        };
+
+        let res = m[a]();
+        if(res === 0) return;
+
+        if (p.energy < 0) { 
+            let penalty = Math.abs(Math.floor(p.energy / 10)) * 5; 
+            p.health = Math.max(0, p.health - penalty); 
+            lg(`【警告】體力透支！身體損耗扣 HP ${penalty}`,"log-bad"); 
+            p.energy = 0; 
+        }
+
+        if (res !== 2) { t++; if(t >= 4){ t = 0; d++; } }
+        if(d > 15) final();
+        rp();
+    }
+
+    function lg(m, c) { 
+        const b = document.getElementById('logBox'); 
+        const entry = document.createElement('div');
+        entry.className = `log-entry ${c}`;
+        entry.innerHTML = `<strong>Day ${d}</strong>: ${m}`;
+        b.insertBefore(entry, b.firstChild);
+    }
+
+    function end(t, ds) { live = false; document.getElementById('endingOverlay').style.display = 'flex'; document.getElementById('endTitle').innerText = t; document.getElementById('endDesc').innerText = ds; }
+
+    function final() {
+        if(!hasActed) end("😶 好結局：樸實無華", "你看透了江湖，決定回去腳踏實地。");
+        else if(p.money <= 0) end("💀 結局一：債務抵償", "欠下巨額高利貸，你被帶走後再也沒出現過。");
+        else if(p.money > 5000 && p.crime > 15) end("💀 結局二：黑吃黑", "被最親近的小弟出賣滅口。");
+        else if(p.money > 5000) end("💀 結局三：企圖潛逃", "被海警當場抓獲，免錢飯吃到飽。");
+        else if(p.health < 50) end("💀 結局四：終身殘疾", "江湖路斷，後半輩子只能與輪椅為伍。");
+        else if(p.face < 200) end("💀 結局五：江湖邊緣人", "混不出名號，最後連新進小弟都看不起你。");
+        else if(p.face >= 200 && p.money < 2000) end("💀 結局六：窮裝B王", "表面風光，私下連碗泡麵都買不起。");
+        else if(p.money > 20000 && p.face > 500 && p.crime < 15) end("💀 結局七：風光一時", "被意外身亡，老婆也跟別人跑了，小弟們開心的吃席。");
+        else end("💀 結局八：平庸的混混", "15天過去了，你依然在底層掙扎，想回頭也來不及了。");
+    }
+    
+    lg("江湖生存戰開始。記住，沒錢、沒健康、沒面子的人沒資格說話。", "log-info");
+    up();
+</script>
+</body>
+</html>
