@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>臨停提醒器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        body {
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+        }
+        h2 {
+            margin-top: 0;
+            color: #1a1a1a;
+            text-align: center;
+        }
+        .music-control {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+        .btn-music {
+            background-color: #edf2f7;
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-music:hover {
+            background-color: #e2e8f0;
+        }
+        .btn-music.playing {
+            background-color: #e6fffa;
+            color: #234e52;
+            border-color: #b2f5ea;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+        input#plateInput {
+            text-transform: uppercase;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #0088cc;
+        }
+        .message-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-left: 6px solid #0088cc;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #2d3748;
+            resize: vertical;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .btn-refresh {
+            background-color: #4a5568;
+            color: white;
+        }
+        .btn-refresh:hover {
+            background-color: #2d3748;
+        }
+        .btn-send {
+            background-color: #0088cc;
+            color: white;
+        }
+        .btn-send:hover {
+            background-color: #0077b3;
+        }
+        .status-msg {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 15px;
+            min-height: 20px;
+            font-weight: 600;
+        }
+        .match-info {
+            font-size: 13px;
+            margin-top: 6px;
+            color: #4a5568;
+        }
+        .success { color: #38a169; }
+        .error { color: #e53e3e; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="music-control">
+        <button id="musicToggleBtn" class="btn-music" onclick="toggleMusic()">🎵 背景音樂：載入中...</button>
+    </div>
+    
+    <audio id="bgMusic" loop autoplay src="https://raw.githubusercontent.com/ADX-blast/-world/main/%E9%9F%BF%E3%81%AE%E8%AA%BF.MP3"></audio>
+
+    <h2>🚗 臨停通知系統</h2>
+
+    <div class="input-group">
+        <label for="plateInput">車牌號碼：</label>
+        <input type="text" id="plateInput" placeholder="例如：ABC-1234" value="" oninput="handlePlateChange()">
+        <div id="matchInfo" class="match-info">⏳ 正在連線讀取...</div>
+    </div>
+
+    <input type="hidden" id="chatIdInput" value="">
+    <input type="hidden" id="botTokenInput" value="">
+
+    <label for="messageTextarea">提醒訊息（可直接編輯）：</label>
+    <div class="message-box">
+        <textarea id="messageTextarea" placeholder="請輸入欲傳送的提醒內容..."></textarea>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-refresh" onclick="refreshTemplate()">🔄 隨機生成</button>
+        <button class="btn-send" onclick="sendViaBotApi()">🚀 提醒車主</button>
+    </div>
+
+    <div class="status-msg" id="statusMsg"></div>
+</div>
+
+<script>
+    const SPREADSHEET_ID = "1zVuO3Dbw-y4yXKeDII7h8E9Rf6Bor-kGvZXiuTy4770";
+    
+    let sheetDataStore = [];
+
+    const templates = [
+        "您好，您的愛車【{PLATE}】目前擋到其他車輛出入，方便的話麻煩您前來移車，感謝您的配合！",
+        "車主您好！您的車輛【{PLATE}】暫停處影響到他人通行，請抽空過來協助移動一下，謝謝！",
+        "不好意思打擾了，您的車【{PLATE}】目前停放位置稍微佔用到通道，麻煩您盡快前來移車，萬分感謝！",
+        "【移車提醒】您好，車牌【{PLATE}】的車主，目前現場有車輛需要出入，再請您協助移車，謝謝您！",
+        "您好，不好意思！您的愛車【{PLATE}】停放位置剛好擋住出口，方便請您過來挪個車嗎？感謝！",
+        "【溫馨提示】車牌【{PLATE}】車主您好，您的車輛目前影響到周邊交通/車位出入，請幫忙移動一下，謝謝配合！",
+        "打擾了～車牌【{PLATE}】的車主，現場有人急著要出車，麻煩您看到訊息後過來移一下車，謝謝！",
+        "您好，車牌【{PLATE}】暫停的位置目前需要空出，麻煩您抽空前來移車，造成不便敬請見諒，感謝！",
+        "車主您好，您的車輛【{PLATE}】停放處阻擋了正常通行，方便麻煩您現在過來移車嗎？謝謝您！",
+        "【緊急移車通知】車牌【{PLATE}】車主您好，您的愛車目前擋住其他車輛，再請您儘速前來處理，謝謝！",
+        "您好，不好意思打擾！車牌【{PLATE}】需要請您協助移動一下，以便其他人車通行，非常感謝您的幫忙！",
+        "車主您好，不好意思佔用您的時間，您的愛車【{PLATE}】目前停放位置影響到出入，麻煩您前來移車，謝謝！",
+        "【請協助移車】您好，車牌【{PLATE}】目前擋在通道上，方便請您過來稍微挪動一下嗎？感恩！",
+        "打擾了！車牌【{PLATE}】的車主，我們這裡需要使用該出入口，麻煩您儘快前來協助移車，謝謝配合！",
+        "您好～車牌【{PLATE}】目前停放的位置剛好卡住其他車輛，再麻煩您前來移個車，謝謝您！"
+    ];
+
+    let lastIndex = -1;
+    let currentRawTemplate = ""; 
+    let currentDisplayedPlate = "____";
+
+    function autoPlayMusic() {
+        const bgMusic = document.getElementById("bgMusic");
+        const btn = document.getElementById("musicToggleBtn");
+
+        bgMusic.play().then(() => {
+            btn.innerText = "🎶 背景音樂：播放中";
+            btn.classList.add("playing");
+        }).catch(err => {
+            console.log("瀏覽器阻擋自動播放，需等待使用者手動開啟：", err);
+            btn.innerText = "🎵 背景音樂：關閉";
+            btn.classList.remove("playing");
+        });
+    }
+
+    function toggleMusic() {
+        const bgMusic = document.getElementById("bgMusic");
+        const btn = document.getElementById("musicToggleBtn");
+
+        if (bgMusic.paused) {
+            bgMusic.play().then(() => {
+                btn.innerText = "🎶 背景音樂：播放中";
+                btn.classList.add("playing");
+            }).catch(err => {
+                console.error("音樂播放失敗：", err);
+                alert("播放失敗，請確認網路連線或音樂網址是否正常。");
+            });
+        } else {
+            bgMusic.pause();
+            btn.innerText = "🎵 背景音樂：關閉";
+            btn.classList.remove("playing");
+        }
+    }
+
+    async function loadGoogleSheet() {
+        const matchInfo = document.getElementById("matchInfo");
+        const timestamp = new Date().getTime();
+        const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&t=${timestamp}`;
+
+        try {
+            const res = await fetch(url);
+            const text = await res.text();
+            
+            const json = JSON.parse(text.substr(47).slice(0, -2));
+            const rows = json.table.rows;
+
+            sheetDataStore = rows.map(row => {
+                const plate = (row.c && row.c[0] && row.c[0].v !== null) ? String(row.c[0].v).trim().toUpperCase() : "";
+                const chatId = (row.c && row.c[1] && row.c[1].v !== null) ? String(row.c[1].v).trim() : "";
+                const apiToken = (row.c && row.c[2] && row.c[2].v !== null) ? String(row.c[2].v).trim() : "";
+                return { plate, chatId, apiToken };
+            });
+
+            matchInfo.innerText = "✅ 試算表連線成功！";
+            matchInfo.className = "match-info success";
+            handlePlateChange();
+        } catch (err) {
+            console.error(err);
+            matchInfo.innerText = "⚠️ 無法載入資料，請確認網路狀態";
+            matchInfo.className = "match-info error";
+        }
+    }
+
+    function handlePlateChange() {
+        const inputPlate = document.getElementById("plateInput").value.trim().toUpperCase();
+        const matchInfo = document.getElementById("matchInfo");
+        const chatIdInput = document.getElementById("chatIdInput");
+        const botTokenInput = document.getElementById("botTokenInput");
+
+        // 即時替換訊息中的車牌號碼，確保一致
+        updateMessageWithPlate();
+
+        if (!inputPlate) {
+            matchInfo.innerText = "❌ 請輸入車牌號碼以便查詢";
+            matchInfo.className = "match-info error";
+            chatIdInput.value = "";
+            botTokenInput.value = "";
+            return;
+        }
+
+        const match = sheetDataStore.find(item => item.plate === inputPlate);
+
+        if (match) {
+            chatIdInput.value = match.chatId;
+            botTokenInput.value = match.apiToken;
+            matchInfo.innerText = "🎯 已成功找到此車牌訊息！";
+            matchInfo.className = "match-info success";
+        } else {
+            chatIdInput.value = "";
+            botTokenInput.value = "";
+            matchInfo.innerText = "❓ 未找到此車牌訊息，請重新確認";
+            matchInfo.className = "match-info error";
+        }
+    }
+
+    function refreshTemplate() {
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * templates.length);
+        } while (randomIndex === lastIndex && templates.length > 1);
+        
+        lastIndex = randomIndex;
+        currentRawTemplate = templates[randomIndex];
+        updateMessageWithPlate(true); // 強制以新模板替換
+    }
+
+    function updateMessageWithPlate(isNewTemplate = false) {
+        const newPlate = document.getElementById("plateInput").value.trim().toUpperCase() || "____";
+        const textarea = document.getElementById("messageTextarea");
+
+        if (isNewTemplate && currentRawTemplate) {
+            // 使用新模板替換
+            textarea.value = currentRawTemplate.replace(/\{PLATE\}/g, newPlate);
+        } else {
+            // 即時捕捉舊車牌文字並替換成新輸入的車牌
+            if (textarea.value.includes(currentDisplayedPlate)) {
+                textarea.value = textarea.value.split(currentDisplayedPlate).join(newPlate);
+            } else if (currentRawTemplate) {
+                textarea.value = currentRawTemplate.replace(/\{PLATE\}/g, newPlate);
+            }
+        }
+        
+        // 紀錄當前訊息框中的車牌字串
+        currentDisplayedPlate = newPlate;
+    }
+
+    async function sendViaBotApi() {
+        const inputPlate = document.getElementById("plateInput").value.trim();
+        const chatId = document.getElementById("chatIdInput").value.trim();
+        const botToken = document.getElementById("botTokenInput").value.trim();
+        const text = document.getElementById("messageTextarea").value;
+        const statusMsg = document.getElementById("statusMsg");
+
+        if (!inputPlate || !chatId || !botToken) {
+            alert("請嘗試輸入有效車牌號碼");
+            return;
+        }
+
+        if (!text) {
+            alert("請輸入訊息內容！");
+            return;
+        }
+
+        statusMsg.className = "status-msg";
+        statusMsg.innerText = "⏳ 傳送中...";
+
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: text
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.ok) {
+                statusMsg.className = "status-msg success";
+                statusMsg.innerText = "✅ 訊息已成功發送給車主！";
+            } else {
+                statusMsg.className = "status-msg error";
+                statusMsg.innerText = `❌ 發送失敗：${data.description}`;
+            }
+        } catch (error) {
+            statusMsg.className = "status-msg error";
+            statusMsg.innerText = "❌ 網路連線失敗！";
+        }
+    }
+
+    function checkUrlPlate() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const plateParam = urlParams.get('plate');
+        
+        if (plateParam) {
+            const plateInput = document.getElementById("plateInput");
+            plateInput.value = plateParam.toUpperCase();
+        }
+    }
+
+    // 初始化頁面與執行
+    refreshTemplate();
+    checkUrlPlate();
+    loadGoogleSheet();
+    autoPlayMusic();
+</script>
+
+</body>
+</html>
